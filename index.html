@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>MedTracker Pro v9</title>
+  <title>MedTracker Pro v10</title>
   
   <link rel="manifest" href="manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -312,7 +312,7 @@
     localStorage.setItem('medMembers', JSON.stringify(members));
     let activeMember = members[0];
 
-    const request = indexedDB.open("MedTrackerDB_v9_clean", 1);
+    const request = indexedDB.open("MedTrackerDB_v10_live", 1);
     request.onupgradeneeded = (e) => {
       db = e.target.result;
       if (!db.objectStoreNames.contains("medicines")) {
@@ -674,7 +674,7 @@
               <th>Patient</th>
               <th>Medicine Name</th>
               <th>Type</th>
-              <th>Required Qty</th>
+              <th>Required Order Qty</th>
             </tr>
           </thead>
           <tbody>`;
@@ -687,8 +687,9 @@
           if (['Eye Drop', 'Gel', 'Cream', 'Inhaler', 'Syrup'].includes(m.type) || m.dose === 'SOS') {
             reqText = "1 or 2 Units";
           } else {
-            let needed = Math.max(0, (dailyCount * 30) - currentStockNum);
-            reqText = needed > 0 ? `${needed} Tablets` : `30 Tablets (1 Month)`;
+            let monthlyReq = dailyCount * 30;
+            let needed = Math.max(0, monthlyReq - currentStockNum);
+            reqText = needed > 0 ? `${needed} Tablets / Capsules` : `0 (Sufficient Stock)`;
           }
 
           html += `
@@ -727,10 +728,10 @@ Date: ${new Date().toLocaleDateString()}
             reqText = "1 or 2 Units";
           } else {
             let needed = Math.max(0, (dailyCount * 30) - currentStockNum);
-            reqText = needed > 0 ? `${needed} Tablets` : `30 Tablets`;
+            reqText = needed > 0 ? `${needed} Tablets` : `0 (In Stock)`;
           }
 
-          txt += `${i+1}. [${m.member}] ${m.name} (${m.type}) - ${reqText}
+          txt += `${i+1}. [${m.member}] ${m.name} (${m.type}) - Req Qty: ${reqText}
 `;
         });
 
