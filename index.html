@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>MedTracker Pro v7</title>
+  <title>MedTracker Pro v8 Fresh</title>
   
   <link rel="manifest" href="manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -193,7 +193,6 @@
     <button class="btn btn-warning" onclick="openOrderModal()">📄 Chemist Order</button>
   </div>
 
-  <!-- Hidden File Input for Restoring Backup -->
   <input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="importData(event)" />
 
   <!-- Add/Edit Medicine Modal -->
@@ -321,10 +320,12 @@
     }
 
     let db;
-    let members = JSON.parse(localStorage.getItem('medMembers')) || ["👴 Grandpa", "👵 Grandma", "👨 Dad", "👩 Mom"];
+    let members = ["👴 Grandpa", "👵 Grandma", "👨 Dad", "👩 Mom"];
+    localStorage.setItem('medMembers', JSON.stringify(members));
     let activeMember = members[0];
 
-    const request = indexedDB.open("MedTrackerDB_v5", 1);
+    // DB VERSION BUMPED TO v8 TO FORCE FRESH SEED OF ALL 15+12 MEDICINES
+    const request = indexedDB.open("MedTrackerDB_v8_fresh", 1);
     request.onupgradeneeded = (e) => {
       db = e.target.result;
       if (!db.objectStoreNames.contains("medicines")) {
@@ -365,12 +366,36 @@
       store.count().onsuccess = (e) => {
         if (e.target.result === 0) {
           const defaults = [
+            // FULL DADAJI MEDICINE SCHEDULE (15 MEDICINES)
             { member: "👴 Grandpa", name: "Omez", type: "Capsule", stripSize: 15, slot: "Before Breakfast", dose: "OD", stock: "", history: [] },
             { member: "👴 Grandpa", name: "Amaryl 1mg", type: "Tablet", stripSize: 15, slot: "Before Breakfast", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Monit GTN 6.4", type: "Tablet", stripSize: 15, slot: "10:00 AM Breakfast", dose: "OD", stock: "", history: [] },
             { member: "👴 Grandpa", name: "Telma - H", type: "Tablet", stripSize: 15, slot: "10:00 AM Breakfast", dose: "OD", stock: "", history: [] },
             { member: "👴 Grandpa", name: "Met Xl 12.5", type: "Tablet", stripSize: 15, slot: "10:00 AM Breakfast", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Solifenacin 5mg", type: "Tablet", stripSize: 15, slot: "10:00 AM Breakfast", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Amlodipine 2.5mg", type: "Tablet", stripSize: 15, slot: "4:00 PM", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Deplatt A-75", type: "Tablet", stripSize: 15, slot: "4:00 PM", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Nityam", type: "Tablet", stripSize: 10, slot: "Before Dinner", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Rivaxa 2.5", type: "Tablet", stripSize: 15, slot: "After Dinner / Bedtime", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Sildo D8", type: "Tablet", stripSize: 15, slot: "After Dinner / Bedtime", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Maxgalin 50", type: "Capsule", stripSize: 15, slot: "After Dinner / Bedtime", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Ativan 1mg", type: "Tablet", stripSize: 15, slot: "After Dinner / Bedtime", dose: "HS", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Tonact 40", type: "Tablet", stripSize: 15, slot: "After Dinner / Bedtime", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Dolo 500", type: "Tablet", stripSize: 15, slot: "After Dinner / Bedtime", dose: "SOS", stock: "", history: [] },
+
+            // FULL DADIJI / MAA MEDICINE SCHEDULE (12 MEDICINES)
             { member: "👵 Grandma", name: "Pantocid-DSR", type: "Capsule", stripSize: 10, slot: "Before Breakfast", dose: "BD", stock: "", history: [] },
-            { member: "👵 Grandma", name: "Pregacip -M", type: "Capsule", stripSize: 10, slot: "Lunch", dose: "BD", stock: "", history: [] }
+            { member: "👵 Grandma", name: "Pregacip -M", type: "Capsule", stripSize: 10, slot: "Lunch", dose: "BD", stock: "", history: [] },
+            { member: "👵 Grandma", name: "Crampnil", type: "Tablet", stripSize: 15, slot: "Lunch", dose: "OD", stock: "", history: [] },
+            { member: "👵 Grandma", name: "Teptawun ER 50", type: "Tablet", stripSize: 10, slot: "Lunch", dose: "OD", stock: "", history: [] },
+            { member: "👵 Grandma", name: "Pyrigesic 1000", type: "Tablet", stripSize: 10, slot: "Lunch", dose: "OD", stock: "", history: [] },
+            { member: "👵 Grandma", name: "Amlovas 5mg", type: "Tablet", stripSize: 15, slot: "Lunch", dose: "OD", stock: "", history: [] },
+            { member: "👵 Grandma", name: "Refresh Eye Drop", type: "Eye Drop", stripSize: 1, slot: "External Application", dose: "1 Unit", stock: "", history: [] },
+            { member: "👵 Grandma", name: "Zolfresh 5mg", type: "Tablet", stripSize: 10, slot: "After Dinner / Bedtime", dose: "HS", stock: "", history: [] },
+            { member: "👵 Grandma", name: "Dulcolex", type: "Tablet", stripSize: 10, slot: "After Dinner / Bedtime", dose: "BD", stock: "", history: [] },
+            { member: "👵 Grandma", name: "Dicloran Gel", type: "Gel", stripSize: 1, slot: "External Application", dose: "1 Unit", stock: "", history: [] },
+            { member: "👵 Grandma", name: "Soformycin", type: "Cream", stripSize: 1, slot: "External Application", dose: "1 Unit", stock: "", history: [] },
+            { member: "👵 Grandma", name: "Betnovate", type: "Cream", stripSize: 1, slot: "External Application", dose: "1 Unit", stock: "", history: [] }
           ];
           const writeTx = db.transaction("medicines", "readwrite");
           defaults.forEach(item => writeTx.objectStore("medicines").add(item));
