@@ -1,537 +1,1087 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>MedTracker Pro</title>
-  
-  <link rel="manifest" href="manifest.json" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="MedTracker" />
-  <meta name="theme-color" content="#2563eb" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#16324F">
+<title>Dawai Tracker</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#F5F7FA;
+    --surface:#FFFFFF;
+    --surface-2:#F0F3F7;
+    --text:#101826;
+    --text-muted:#5B6675;
+    --text-faint:#8A93A2;
+    --border:#E1E6ED;
+    --primary:#16324F;
+    --primary-2:#1F4568;
+    --primary-light:#E9EFF5;
+    --danger:#D6293E;
+    --danger-light:#FBEAEC;
+    --warning:#B4720A;
+    --warning-light:#FBF0DD;
+    --safe:#187A55;
+    --safe-light:#E4F5EC;
+    --radius-sm:8px;
+    --radius:14px;
+    --radius-lg:20px;
+    --shadow:0 1px 2px rgba(16,24,38,.04), 0 4px 16px rgba(16,24,38,.06);
+    --font-display:'Plus Jakarta Sans',system-ui,sans-serif;
+    --font-body:'Inter',system-ui,sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--font-body);}
+  body{padding-bottom:40px;}
+  h1,h2,h3,.disp{font-family:var(--font-display);letter-spacing:-.01em;}
+  .mono{font-family:var(--font-mono);}
+  button{font-family:inherit;cursor:pointer;}
+  input,select,textarea{font-family:inherit;}
+  :focus-visible{outline:2.5px solid var(--primary-2);outline-offset:2px;}
 
-  <style>
-    :root {
-      --primary: #2563eb;
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --border: #cbd5e1;
-      --danger: #ef4444;
-      --warning: #f59e0b;
-      --success: #10b981;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      margin: 0;
-      padding: 12px;
-      padding-top: env(safe-area-inset-top, 12px);
-      padding-bottom: 100px;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .header {
-      text-align: center;
-      padding: 12px;
-      background: var(--card-bg);
-      border-radius: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      margin-bottom: 12px;
-    }
-    .status-badge {
-      display: inline-block;
-      padding: 3px 8px;
-      font-size: 0.75rem;
-      border-radius: 12px;
-      font-weight: bold;
-    }
-    .status-online { background: #dcfce7; color: #15803d; }
-    .status-offline { background: #fef3c7; color: #b45309; }
-    
-    .alert-banner {
-      display: none;
-      background: #fee2e2;
-      border: 1px solid var(--danger);
-      color: #991b1b;
-      padding: 10px;
-      border-radius: 10px;
-      font-size: 0.85rem;
-      font-weight: bold;
-      margin-bottom: 12px;
-      text-align: center;
-    }
+  /* ---- Header ---- */
+  header{background:var(--primary);color:#fff;padding:14px 16px 12px;position:sticky;top:0;z-index:50;}
+  .header-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  header h1{font-size:19px;margin:0;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px;}
+  header .pill-icon{width:22px;height:22px;flex:none;}
+  .header-actions{display:flex;gap:6px;}
+  .icon-btn{
+    background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);
+    color:#fff;width:34px;height:34px;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;position:relative;
+  }
+  .icon-btn.on{background:#fff;border-color:#fff;}
+  .icon-btn.on svg{stroke:var(--primary);}
+  .icon-btn:active{background:rgba(255,255,255,.26);}
+  header .sub-row{display:flex;justify-content:space-between;align-items:baseline;margin-top:5px;}
+  header .sub{font-size:12px;color:rgba(255,255,255,.72);font-family:var(--font-body);}
+  header .order-status{font-size:11.5px;font-weight:700;font-family:var(--font-mono);padding:3px 8px;border-radius:999px;}
+  header .order-status.ok{background:rgba(255,255,255,.14);color:#cfe7d9;}
+  header .order-status.warn{background:#FBF0DD;color:#7A4B08;}
+  header .order-status.overdue{background:#FBEAEC;color:#8f1626;}
 
-    .tabs { display: flex; gap: 8px; margin-bottom: 12px; }
-    .tab-btn {
-      flex: 1; padding: 12px 8px; background: var(--card-bg);
-      border: 1px solid var(--border); border-radius: 8px;
-      font-weight: bold; cursor: pointer; font-size: 0.9rem;
-    }
-    .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+  /* ---- Tabs ---- */
+  nav.tabs{display:flex;gap:4px;background:var(--primary);padding:0 10px 10px;position:sticky;top:64px;z-index:49;overflow-x:auto;scrollbar-width:none;}
+  nav.tabs::-webkit-scrollbar{display:none;}
+  nav.tabs button{flex:none;background:transparent;border:none;color:rgba(255,255,255,.62);font-family:var(--font-display);font-weight:700;font-size:13.5px;padding:8px 13px;border-radius:999px;white-space:nowrap;}
+  nav.tabs button.active{background:#fff;color:var(--primary);}
+  nav.tabs button .badge{display:inline-block;margin-left:5px;background:var(--danger);color:#fff;font-size:10.5px;font-weight:700;border-radius:999px;padding:1px 6px;font-family:var(--font-mono);}
+  nav.tabs button.active .badge{background:var(--danger);color:#fff;}
 
-    .card {
-      background: var(--card-bg); border-radius: 12px;
-      padding: 14px; margin-bottom: 10px; border: 1px solid var(--border);
-    }
-    .med-header { display: flex; justify-content: space-between; align-items: center; }
-    .med-title { font-size: 1.05rem; font-weight: bold; color: var(--primary); }
-    
-    .stock-box {
-      background: #f1f5f9; padding: 8px; border-radius: 8px;
-      display: flex; justify-content: space-between; align-items: center; margin-top: 8px;
-    }
-    .stock-box input {
-      width: 65px; padding: 6px; text-align: center; font-weight: bold;
-      border-radius: 6px; border: 1px solid var(--border); font-size: 1rem;
-    }
+  main{max-width:640px;margin:0 auto;padding:16px 14px 10px;}
 
-    .btn { padding: 10px 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-success { background: var(--success); color: white; }
-    .btn-danger { background: var(--danger); color: white; }
-    .btn-warning { background: var(--warning); color: white; }
-    
-    .modal {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;
-    }
-    .modal-content {
-      background: white; padding: 20px; border-radius: 16px; width: 90%; max-width: 450px;
-      max-height: 85vh; overflow-y: auto;
-    }
-    .form-group { margin-bottom: 10px; }
-    .form-group label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 4px; }
-    .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); box-sizing: border-box; font-size: 0.95rem; }
+  .section-title{font-family:var(--font-display);font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin:22px 2px 10px;display:flex;align-items:center;gap:8px;}
+  .section-title:first-child{margin-top:4px;}
+  .dot{width:8px;height:8px;border-radius:50%;flex:none;}
+  .dot.critical{background:var(--danger);}
+  .dot.warning{background:var(--warning);}
+  .dot.safe{background:var(--safe);}
+  .dot.neutral{background:var(--text-faint);}
 
-    .bottom-bar {
-      position: fixed; bottom: 0; left: 0; right: 0; background: white;
-      border-top: 1px solid var(--border); display: flex; padding: 12px; gap: 8px;
-      padding-bottom: env(safe-area-inset-bottom, 12px);
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-    }
-    .bottom-bar button { flex: 1; }
+  .med-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 14px 12px;margin-bottom:10px;box-shadow:var(--shadow);}
+  .med-card.critical{border-left:4px solid var(--danger);}
+  .med-card.warning{border-left:4px solid var(--warning);}
+  .med-card.safe{border-left:4px solid var(--safe);}
+  .med-card.neutral{border-left:4px solid var(--text-faint);}
+  .med-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .med-name{font-family:var(--font-display);font-weight:700;font-size:15.5px;}
+  .med-person{font-size:11.5px;color:var(--primary-2);font-weight:700;background:var(--primary-light);padding:2px 8px;border-radius:999px;display:inline-block;margin-bottom:4px;}
+  .med-meta{font-size:12.5px;color:var(--text-muted);margin-top:3px;}
+  .med-meta b{color:var(--text);font-weight:600;}
+  .unit-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--text-faint);}
+  .dosing-badge{font-family:var(--font-mono);font-weight:600;font-size:11px;background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:2px 6px;margin-right:5px;}
+  .capsule-wrap{margin-top:10px;}
+  .capsule-track{height:18px;border-radius:999px;background:var(--surface-2);overflow:hidden;position:relative;border:1px solid var(--border);}
+  .capsule-fill{height:100%;border-radius:999px;transition:width .3s;}
+  .capsule-fill.critical{background:linear-gradient(90deg,#EF5065,var(--danger));}
+  .capsule-fill.warning{background:linear-gradient(90deg,#E0A23A,var(--warning));}
+  .capsule-fill.safe{background:linear-gradient(90deg,#2FA57B,var(--safe));}
+  .days-label{display:flex;justify-content:space-between;align-items:baseline;margin-top:6px;}
+  .days-num{font-family:var(--font-mono);font-weight:700;font-size:13px;}
+  .days-num.critical{color:var(--danger);}
+  .days-num.warning{color:var(--warning);}
+  .days-num.safe{color:var(--safe);}
+  .finish-date{font-size:11.5px;color:var(--text-faint);font-family:var(--font-mono);}
+  .med-actions{display:flex;gap:6px;margin-top:11px;}
+  .med-actions button{flex:1;padding:7px 6px;border-radius:8px;font-size:12.5px;font-weight:600;border:1px solid var(--border);background:var(--surface-2);color:var(--text);}
+  .med-actions button.restock{background:var(--primary);color:#fff;border-color:var(--primary);}
+  .med-actions button.danger-txt{color:var(--danger);}
+  .sos-tag{font-size:11px;font-weight:700;color:var(--text-muted);background:var(--surface-2);padding:3px 9px;border-radius:6px;display:inline-block;margin-top:8px;}
+  .needqty-tag{font-size:11px;font-weight:700;color:var(--warning);background:var(--warning-light);padding:3px 9px;border-radius:6px;display:inline-block;margin-top:8px;}
 
-    .pdf-preview {
-      background: #fff;
-      padding: 15px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      margin-top: 10px;
-    }
-    .pdf-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-      font-size: 0.85rem;
-    }
-    .pdf-table th, .pdf-table td {
-      border: 1px solid #cbd5e1;
-      padding: 6px;
-      text-align: left;
-    }
-    .pdf-table th { background: #f1f5f9; }
+  .btn-primary{background:var(--primary);color:#fff;border:none;border-radius:11px;padding:12px 16px;font-weight:700;font-family:var(--font-display);font-size:14px;width:100%;display:flex;align-items:center;justify-content:center;gap:7px;}
+  .btn-primary:active{background:var(--primary-2);}
+  .btn-primary:disabled{opacity:.55;}
+  .btn-ghost{background:var(--surface);border:1.5px dashed var(--border);color:var(--text-muted);border-radius:11px;padding:11px 14px;font-weight:600;font-size:13.5px;width:100%;}
 
-    @media print {
-      body * { visibility: hidden; }
-      #printableArea, #printableArea * { visibility: visible; }
-      #printableArea { position: absolute; left: 0; top: 0; width: 100%; }
-    }
-  </style>
+  .member-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+  .member-chip{background:var(--surface);border:1.5px solid var(--border);border-radius:999px;padding:8px 14px;font-weight:700;font-family:var(--font-display);font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:6px;}
+  .member-chip.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+  .member-chip .del-x{opacity:.6;font-weight:800;padding-left:2px;}
+
+  .empty{text-align:center;padding:36px 18px;color:var(--text-faint);}
+  .empty svg{margin-bottom:10px;opacity:.5;}
+  .empty p{font-size:13.5px;margin:0 0 14px;}
+
+  .summary-strip{display:flex;gap:8px;margin-bottom:16px;}
+  .summary-box{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 8px;text-align:center;}
+  .summary-box .num{font-family:var(--font-mono);font-weight:700;font-size:18px;}
+  .summary-box .lbl{font-size:10.5px;color:var(--text-muted);font-weight:600;margin-top:2px;}
+
+  .order-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 12px;margin-bottom:8px;display:flex;align-items:center;gap:11px;}
+  .order-row input[type=checkbox]{width:19px;height:19px;accent-color:var(--primary);flex:none;}
+  .order-row .oname{font-weight:700;font-size:14px;font-family:var(--font-display);}
+  .order-row .ometa{font-size:11.5px;color:var(--text-muted);margin-top:1px;}
+  .order-qty{width:56px;text-align:center;border:1px solid var(--border);border-radius:7px;padding:6px 3px;font-family:var(--font-mono);font-weight:700;font-size:13px;}
+  .order-actions{display:flex;flex-direction:column;gap:8px;margin-top:16px;}
+  .order-actions-row{display:flex;gap:8px;}
+  .order-actions-row button{flex:1;}
+  .btn-secondary{background:var(--surface);border:1.5px solid var(--primary);color:var(--primary);border-radius:11px;padding:11px 10px;font-weight:700;font-family:var(--font-display);font-size:13px;width:100%;display:flex;align-items:center;justify-content:center;gap:6px;}
+  .order-group-title{font-size:12px;font-weight:800;color:var(--primary-2);text-transform:uppercase;letter-spacing:.04em;margin:16px 2px 8px;}
+
+  .history-toggle{background:none;border:none;color:var(--primary-2);font-weight:700;font-size:13px;font-family:var(--font-display);padding:14px 2px 6px;display:flex;align-items:center;gap:5px;}
+  .history-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px;}
+  .history-head{display:flex;justify-content:space-between;align-items:center;}
+  .history-date{font-weight:700;font-size:13px;font-family:var(--font-display);}
+  .history-count{font-size:11.5px;color:var(--text-muted);}
+  .history-items{font-size:12px;color:var(--text-muted);margin-top:6px;line-height:1.6;}
+  .history-actions{display:flex;gap:8px;margin-top:8px;}
+  .history-actions button{flex:1;font-size:11.5px;padding:6px;border-radius:7px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-muted);font-weight:600;}
+  .bill-thumb{width:40px;height:40px;border-radius:6px;object-fit:cover;border:1px solid var(--border);}
+
+  .overlay{position:fixed;inset:0;background:rgba(10,16,26,.5);display:none;align-items:flex-end;justify-content:center;z-index:100;}
+  .overlay.show{display:flex;}
+  .modal{background:var(--surface);width:100%;max-width:640px;border-radius:20px 20px 0 0;padding:18px 18px calc(env(safe-area-inset-bottom,0px) + 18px);max-height:88vh;overflow-y:auto;}
+  .modal h2{font-size:17px;margin:0 0 14px;}
+  .field{margin-bottom:13px;}
+  .field label{display:block;font-size:12.5px;font-weight:700;color:var(--text-muted);margin-bottom:5px;}
+  .field input,.field select,.field textarea{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:14.5px;background:var(--surface-2);color:var(--text);}
+  .field textarea{resize:vertical;min-height:44px;}
+  .row2{display:flex;gap:10px;}
+  .row2 .field{flex:1;}
+  .modal-actions{display:flex;gap:10px;margin-top:6px;}
+  .modal-actions button{flex:1;}
+  .btn-cancel{background:var(--surface-2);border:1.5px solid var(--border);color:var(--text-muted);border-radius:11px;padding:12px;font-weight:700;font-family:var(--font-display);font-size:14px;width:100%;}
+
+  #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:#fff;padding:11px 18px;border-radius:999px;font-size:13px;font-weight:600;opacity:0;transition:all .25s;z-index:200;pointer-events:none;white-space:nowrap;max-width:88vw;text-align:center;}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @media print{
+    header,nav.tabs,.no-print{display:none !important;}
+    body{background:#fff;padding:0;}
+    main{max-width:100%;padding:0;}
+    #printSheet{display:block !important;}
+  }
+  #printSheet{display:none;}
+  .print-head{border-bottom:2.5px solid #101826;padding-bottom:10px;margin-bottom:16px;}
+  .print-head h2{margin:0 0 3px;font-size:20px;}
+  .print-head .pdate{font-size:12px;color:#555;}
+  .print-group h3{font-size:13.5px;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid #ccc;padding-bottom:4px;margin:16px 0 8px;}
+  table.print-table{width:100%;border-collapse:collapse;font-size:13px;}
+  table.print-table th{text-align:left;font-size:10.5px;text-transform:uppercase;color:#666;padding:5px 6px;border-bottom:1.5px solid #101826;}
+  table.print-table td{padding:7px 6px;border-bottom:1px solid #ddd;vertical-align:top;}
+  table.print-table td.qtycol{font-family:var(--font-mono);font-weight:700;text-align:center;white-space:nowrap;}
+  .print-foot{margin-top:22px;font-size:11px;color:#777;border-top:1px solid #ccc;padding-top:8px;}
+</style>
 </head>
 <body>
 
-  <div class="header">
-    <h2 style="margin:0;">💊 Family MedTracker Pro</h2>
-    <span id="netStatus" class="status-badge status-online">Online</span>
-  </div>
-
-  <div id="alertBanner" class="alert-banner"></div>
-
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('Dadaji')">👴 Dadaji</button>
-    <button class="tab-btn" onclick="switchTab('Dadiji')">👵 Dadiji / Maa</button>
-    <button class="tab-btn" onclick="switchTab('Others')">👨‍👩‍👧‍👦 Others</button>
-  </div>
-
-  <button class="btn btn-success" style="width:100%; margin-bottom:12px;" onclick="openModal()">➕ Add New Medicine</button>
-
-  <div id="medList"></div>
-
-  <div class="bottom-bar">
-    <button class="btn btn-primary" onclick="exportData()">💾 Backup</button>
-    <button class="btn btn-warning" onclick="openOrderModal()">📄 Chemist PDF Order</button>
-  </div>
-
-  <!-- Add/Edit Medicine Modal -->
-  <div id="medModal" class="modal">
-    <div class="modal-content">
-      <h3 id="modalTitle">Add Medicine</h3>
-      <input type="hidden" id="editId" />
-      <div class="form-group">
-        <label>Category</label>
-        <select id="mMember">
-          <option value="Dadaji">Dadaji</option>
-          <option value="Dadiji">Dadiji / Maa</option>
-          <option value="Others">Others</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Medicine Name</label>
-        <input type="text" id="mName" placeholder="e.g. Omez / Telma-H" required />
-      </div>
-      <div class="form-group">
-        <label>Time Slot</label>
-        <select id="mSlot">
-          <option value="Before Breakfast">Before Breakfast (Empty Stomach)</option>
-          <option value="10:00 AM Breakfast">10:00 AM Breakfast</option>
-          <option value="Lunch">Lunch</option>
-          <option value="4:00 PM">4:00 PM</option>
-          <option value="Before Dinner">Before Dinner</option>
-          <option value="After Dinner / Bedtime">After Dinner / Bedtime</option>
-          <option value="External / Drops">External / Drops</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Dosing Schedule</label>
-        <select id="mDose">
-          <option value="OD">OD (Once daily - 1/day)</option>
-          <option value="BD">BD (Twice daily - 2/day)</option>
-          <option value="TID">TID (Thrice daily - 3/day)</option>
-          <option value="HS">HS (Bedtime - 1/day)</option>
-          <option value="SOS">SOS (As needed)</option>
-          <option value="1 Unit">1 Unit (Drops/Cream)</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Current Stock Count</label>
-        <input type="number" id="mStock" placeholder="Qty" value="" />
-      </div>
-      <div style="display:flex; gap:8px; margin-top:15px;">
-        <button class="btn btn-primary" style="flex:1;" onclick="saveMed()">Save</button>
-        <button class="btn btn-danger" onclick="closeModal()">Cancel</button>
-      </div>
+<header class="no-print">
+  <div class="header-row">
+    <h1>
+      <svg class="pill-icon" viewBox="0 0 24 24" fill="none"><rect x="2" y="9" width="20" height="6" rx="3" transform="rotate(-45 12 12)" stroke="#fff" stroke-width="2"/><path d="M9 15 L15 9" stroke="#fff" stroke-width="2"/></svg>
+      Dawai Tracker
+    </h1>
+    <div class="header-actions">
+      <button class="icon-btn" id="remindBtn" title="Order Reminders">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+      </button>
+      <button class="icon-btn" id="exportBtn" title="Backup (Export)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
+      </button>
+      <button class="icon-btn" id="importBtn" title="Restore (Import)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 15V3m0 12l-4-4m4 4l4-4M4 17v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
+      </button>
+      <input type="file" id="importFile" accept="application/json" style="display:none">
     </div>
   </div>
+  <div class="sub-row">
+    <div class="sub">Baba • Maa • Family — dawai stock &amp; reorder</div>
+    <div class="order-status" id="orderStatus"></div>
+  </div>
+</header>
 
-  <!-- Chemist PDF Order Modal -->
-  <div id="orderModal" class="modal">
-    <div class="modal-content">
-      <h3>📋 Generate Chemist Order</h3>
-      
-      <div class="form-group">
-        <label>Select Person for Order Sheet:</label>
-        <select id="orderSelectMember" onchange="renderPdfPreview()">
-          <option value="Dadaji">👴 Dadaji Only</option>
-          <option value="Dadiji">👵 Dadiji / Maa Only</option>
-          <option value="Others">👨‍👩‍👧‍👦 Others Only</option>
-          <option value="All">🌐 Combined (All Family Members)</option>
+<nav class="tabs no-print" id="tabBar"></nav>
+
+<main id="mainArea"></main>
+
+<!-- ================= Medicine Add/Edit Modal ================= -->
+<div class="overlay" id="medOverlay">
+  <div class="modal">
+    <h2 id="medModalTitle">Dawai Add Karein</h2>
+    <div class="field">
+      <label>Dawai ka naam</label>
+      <input type="text" id="f_name" placeholder="e.g. Telma 40, Metformin 500">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Dosing</label>
+        <select id="f_dosing">
+          <option value="OD">OD — din mein 1 baar</option>
+          <option value="BD">BD — din mein 2 baar</option>
+          <option value="TID">TID — din mein 3 baar</option>
+          <option value="QID">QID — din mein 4 baar</option>
+          <option value="HS">HS — raat ko sone se pehle</option>
+          <option value="ALT">Alternate Day — ek din chhod ke</option>
+          <option value="WEEKLY">Weekly — hafte mein 1 baar</option>
+          <option value="SOS">SOS — zaroorat par (no tracking)</option>
+          <option value="CUSTOM">Custom — khud batayein</option>
         </select>
       </div>
+      <div class="field" id="customFreqWrap" style="display:none;">
+        <label>Din mein kitni baar</label>
+        <input type="number" id="f_customFreq" step="0.5" min="0" placeholder="e.g. 2">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Har baar kitni quantity</label>
+        <input type="number" id="f_qtyPerDose" step="0.5" min="0" value="1">
+      </div>
+      <div class="field">
+        <label>Type (classify)</label>
+        <select id="f_unit">
+          <option value="tablet">Tablet</option>
+          <option value="capsule">Capsule</option>
+          <option value="ml">ml (Syrup/Liquid)</option>
+          <option value="sachet">Sachet</option>
+          <option value="drop">Drops (Eye/Ear)</option>
+          <option value="gel">Gel / Ointment</option>
+          <option value="puff">Puff (Inhaler)</option>
+          <option value="injection">Injection</option>
+          <option value="unit">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Abhi kitni quantity stock mein hai (last mangayi thi)</label>
+        <input type="number" id="f_packQty" step="1" min="0" placeholder="e.g. 30 — khali chhod sakte hain">
+      </div>
+      <div class="field">
+        <label>Kab mangayi thi</label>
+        <input type="date" id="f_purchaseDate">
+      </div>
+    </div>
+    <div class="field">
+      <label>Instructions / Timing (optional)</label>
+      <textarea id="f_instructions" placeholder="e.g. khane ke baad, 10am, empty stomach"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="medCancelBtn">Cancel</button>
+      <button class="btn-primary" id="medSaveBtn">Save</button>
+    </div>
+  </div>
+</div>
 
-      <div id="printableArea" class="pdf-preview">
-        <div style="text-align:center; border-bottom:1px solid #ccc; padding-bottom:6px;">
-          <h3 style="margin:0; color:#2563eb;">MEDICINE REFILL ORDER</h3>
-          <p style="margin:2px 0; font-size:0.75rem; color:#64748b;" id="pdfDate"></p>
+<!-- ================= Restock Modal ================= -->
+<div class="overlay" id="restockOverlay">
+  <div class="modal">
+    <h2>Restock — <span id="restockMedName"></span></h2>
+    <div class="row2">
+      <div class="field">
+        <label>Ab kitni quantity mangayi</label>
+        <input type="number" id="r_packQty" step="1" min="0">
+      </div>
+      <div class="field">
+        <label>Kab mangayi</label>
+        <input type="date" id="r_purchaseDate">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="restockCancelBtn">Cancel</button>
+      <button class="btn-primary" id="restockSaveBtn">Update Stock</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= Add Member Modal ================= -->
+<div class="overlay" id="memberOverlay">
+  <div class="modal">
+    <h2>Family Member Add Karein</h2>
+    <div class="field">
+      <label>Naam</label>
+      <input type="text" id="m_name" placeholder="e.g. Papa, Mummy, Bhabhi">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="memberCancelBtn">Cancel</button>
+      <button class="btn-primary" id="memberSaveBtn">Add Karein</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="billFileInput" accept="image/*" capture="environment" style="display:none">
+
+<div id="toast"></div>
+<div id="printSheet"></div>
+
+<script>
+/* ============================================================
+   STATE
+   ============================================================ */
+const STORAGE_KEY = 'dawaiTrackerData_v1';
+
+function uid(){ return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8); }
+function todayISO(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function daysBetween(iso1, iso2){
+  return Math.round((new Date(iso2+'T00:00:00') - new Date(iso1+'T00:00:00'))/86400000);
+}
+
+function defaultState(){
+  return {
+    baba:  { label:'Baba', medicines:[] },
+    maa:   { label:'Maa', medicines:[] },
+    others:[],
+    lastOrderDate:null,
+    orderHistory:[],
+    remindersOn:false,
+    lastReminderShown:null
+  };
+}
+function normalize(s){
+  if(!s.baba) s.baba = {label:'Baba', medicines:[]};
+  if(!s.maa) s.maa = {label:'Maa', medicines:[]};
+  if(!Array.isArray(s.others)) s.others = [];
+  if(!Array.isArray(s.orderHistory)) s.orderHistory = [];
+  if(s.lastOrderDate===undefined) s.lastOrderDate = null;
+  if(s.remindersOn===undefined) s.remindersOn = false;
+  if(s.lastReminderShown===undefined) s.lastReminderShown = null;
+  return s;
+}
+
+let state = loadState();
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    if(!parsed.baba && !parsed.maa) return defaultState();
+    return normalize(parsed);
+  }catch(e){ return defaultState(); }
+}
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+/* ============================================================
+   PERSON REF HELPERS
+   ============================================================ */
+function getPersonGroup(ref){
+  if(ref.type==='baba') return state.baba;
+  if(ref.type==='maa') return state.maa;
+  return state.others.find(m=>m.id===ref.id);
+}
+function getPersonLabel(ref){ const g = getPersonGroup(ref); return g ? (g.label || g.name) : ''; }
+function allPersonRefs(){
+  const refs = [{type:'baba'},{type:'maa'}];
+  state.others.forEach(m=>refs.push({type:'other', id:m.id}));
+  return refs;
+}
+
+/* ============================================================
+   DOSING / STOCK MATH
+   ============================================================ */
+const DOSING_LABELS = { OD:'OD', BD:'BD', TID:'TID', QID:'QID', HS:'HS', ALT:'Alt. Day', WEEKLY:'Weekly', SOS:'SOS', CUSTOM:'Custom' };
+const UNIT_LABELS = { tablet:'Tablet', capsule:'Capsule', ml:'ml', sachet:'Sachet', drop:'Drops', gel:'Gel/Ointment', puff:'Puff', injection:'Injection', unit:'unit' };
+
+function dosesPerDay(med){
+  switch(med.dosing){
+    case 'OD': return 1;
+    case 'BD': return 2;
+    case 'TID': return 3;
+    case 'QID': return 4;
+    case 'HS': return 1;
+    case 'ALT': return 0.5;
+    case 'WEEKLY': return 1/7;
+    case 'SOS': return 0;
+    case 'CUSTOM': return Number(med.customFreq)||0;
+    default: return 0;
+  }
+}
+// status: 'critical' | 'warning' | 'safe' | 'sos' | 'unset'
+function computeStock(med, todayStr){
+  const dpd = dosesPerDay(med);
+  const dailyUse = (Number(med.qtyPerDose)||0) * dpd;
+  if(med.dosing==='SOS' || dailyUse<=0){
+    return {tracked:false, status:'sos'};
+  }
+  const packQty = Number(med.packQty)||0;
+  if(packQty<=0 || !med.purchaseDate){
+    return {tracked:false, status:'unset'};
+  }
+  const daysSince = Math.max(0, daysBetween(med.purchaseDate, todayStr));
+  const consumed = dailyUse*daysSince;
+  const remaining = packQty - consumed;
+  const daysRemaining = remaining/dailyUse;
+  const totalDaysSupply = packQty/dailyUse;
+  const finishDate = new Date(new Date(med.purchaseDate+'T00:00:00').getTime() + totalDaysSupply*86400000).toISOString().slice(0,10);
+  let status = 'safe';
+  if(daysRemaining<=5) status='critical';
+  else if(daysRemaining<=12) status='warning';
+  return { tracked:true, status, dailyUse, daysRemaining, totalDaysSupply, finishDate,
+    pctLeft: Math.max(0, Math.min(100, (daysRemaining/totalDaysSupply)*100)) };
+}
+function cssClass(status){ return (status==='sos'||status==='unset') ? 'neutral' : status; }
+function fmtDays(stock){
+  if(stock.status==='sos') return 'Zaroorat par (SOS)';
+  if(stock.status==='unset') return 'Quantity set nahi hai — Restock dabayein';
+  const d = Math.round(stock.daysRemaining);
+  if(d<=0) return Math.abs(d)+' din pehle khatam ho gaya';
+  return d+' din baaki hai';
+}
+function fmtDate(iso){
+  if(!iso) return '';
+  const d = new Date(iso+'T00:00:00');
+  return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+let activeTab = 'dashboard';
+let activeOtherMember = null;
+let historyOpen = false;
+
+function lowStockCount(){
+  let c=0;
+  allPersonRefs().forEach(ref=>{
+    getPersonGroup(ref).medicines.forEach(med=>{
+      const s = computeStock(med, todayISO());
+      if(s.status==='critical') c++;
+    });
+  });
+  return c;
+}
+
+function renderTabs(){
+  const bar = document.getElementById('tabBar');
+  const low = lowStockCount();
+  const tabs = [
+    {key:'dashboard', label:'Dashboard'},
+    {key:'baba', label:'Baba'},
+    {key:'maa', label:'Maa'},
+    {key:'other', label:'Family'},
+    {key:'order', label:'Order List'}
+  ];
+  bar.innerHTML = tabs.map(t=>{
+    const badge = (t.key==='dashboard' && low>0) ? `<span class="badge">${low}</span>` : '';
+    return `<button class="${activeTab===t.key?'active':''}" data-tab="${t.key}">${t.label}${badge}</button>`;
+  }).join('');
+  bar.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click', ()=>{ activeTab=b.dataset.tab; render(); });
+  });
+}
+
+function updateHeaderStatus(){
+  const el = document.getElementById('orderStatus');
+  if(!state.lastOrderDate){
+    el.textContent = 'Koi order track nahi hua';
+    el.className = 'order-status warn';
+    return;
+  }
+  const d = daysBetween(state.lastOrderDate, todayISO());
+  el.textContent = d+' din pehle order hua';
+  el.className = 'order-status ' + (d>=30?'overdue':(d>=20?'warn':'ok'));
+  document.getElementById('remindBtn').classList.toggle('on', !!state.remindersOn);
+}
+
+function render(){
+  renderTabs();
+  updateHeaderStatus();
+  const main = document.getElementById('mainArea');
+  if(activeTab==='dashboard') main.innerHTML = renderDashboard();
+  else if(activeTab==='baba') main.innerHTML = renderPersonTab({type:'baba'});
+  else if(activeTab==='maa') main.innerHTML = renderPersonTab({type:'maa'});
+  else if(activeTab==='other') main.innerHTML = renderOtherTab();
+  else if(activeTab==='order') main.innerHTML = renderOrderTab();
+  attachDynamicListeners();
+}
+
+/* ---------------- Dashboard ---------------- */
+function renderDashboard(){
+  const today = todayISO();
+  let rows = [];
+  allPersonRefs().forEach(ref=>{
+    getPersonGroup(ref).medicines.forEach(med=>{
+      const stock = computeStock(med, today);
+      rows.push({ref, med, stock});
+    });
+  });
+  if(rows.length===0){
+    return emptyState('Abhi koi dawai add nahi hui', 'Baba, Maa ya Family tab mein jaake dawai add karein.');
+  }
+  const rank = {critical:0, warning:1, safe:2, unset:3, sos:4};
+  rows.sort((a,b)=>{
+    if(rank[a.stock.status]!==rank[b.stock.status]) return rank[a.stock.status]-rank[b.stock.status];
+    if(a.stock.tracked) return a.stock.daysRemaining-b.stock.daysRemaining;
+    return 0;
+  });
+  const groups = [
+    {key:'critical', title:'Turant Order Karo', dot:'critical'},
+    {key:'warning', title:'Jaldi Order Karo (6-12 din)', dot:'warning'},
+    {key:'safe', title:'Stock Theek Hai', dot:'safe'},
+    {key:'unset', title:'Quantity Set Karein', dot:'neutral'},
+    {key:'sos', title:'SOS / Zaroorat Par', dot:'neutral'}
+  ];
+  let html = '';
+  groups.forEach(g=>{
+    const items = rows.filter(r=>r.stock.status===g.key);
+    if(items.length===0) return;
+    html += `<div class="section-title"><span class="dot ${g.dot}"></span>${g.title} <span class="mono" style="font-weight:600;color:var(--text-faint);">(${items.length})</span></div>`;
+    items.forEach(r=>{ html += medCard(r.ref, r.med, r.stock, true); });
+  });
+  return html;
+}
+
+/* ---------------- Person tab (Baba / Maa / Other member) ---------------- */
+function renderPersonTab(ref){
+  const g = getPersonGroup(ref);
+  const today = todayISO();
+  const meds = g.medicines;
+  let summary = '';
+  if(meds.length>0){
+    let crit=0, warn=0, safe=0;
+    meds.forEach(m=>{
+      const st = computeStock(m,today).status;
+      if(st==='critical') crit++; else if(st==='warning') warn++; else if(st==='safe') safe++;
+    });
+    summary = `<div class="summary-strip">
+      <div class="summary-box"><div class="num mono">${meds.length}</div><div class="lbl">Total Dawai</div></div>
+      <div class="summary-box"><div class="num mono" style="color:var(--danger)">${crit}</div><div class="lbl">Turant Order</div></div>
+      <div class="summary-box"><div class="num mono" style="color:var(--warning)">${warn}</div><div class="lbl">Jaldi Order</div></div>
+      <div class="summary-box"><div class="num mono" style="color:var(--safe)">${safe}</div><div class="lbl">Theek Hai</div></div>
+    </div>`;
+  }
+  let list = '';
+  if(meds.length===0){
+    list = emptyState((g.label||g.name)+' ki koi dawai nahi hai abhi', 'Neeche button se pehli dawai add karein.');
+  }else{
+    meds.forEach(med=>{ list += medCard(ref, med, computeStock(med, today), false); });
+  }
+  return `${summary}${list}<button class="btn-primary no-print" data-add-med="${ref.type}" style="margin-top:8px;">+ ${g.label||g.name} ke liye Dawai Add Karein</button>`;
+}
+
+/* ---------------- Other (family) tab ---------------- */
+function renderOtherTab(){
+  if(state.others.length===0 && activeOtherMember===null){
+    return `${emptyState('Abhi koi family member add nahi hua','Papa, Mummy, ya kisi aur ke liye add karein.')}
+    <button class="btn-primary no-print" id="addMemberBtn">+ Family Member Add Karein</button>`;
+  }
+  if(!state.others.find(m=>m.id===activeOtherMember)){
+    activeOtherMember = state.others.length ? state.others[0].id : null;
+  }
+  let chips = state.others.map(m=>`
+    <div class="member-chip ${m.id===activeOtherMember?'active':''}" data-member="${m.id}">
+      ${escapeHtml(m.name)}<span class="del-x" data-del-member="${m.id}">✕</span>
+    </div>`).join('');
+  chips += `<div class="member-chip no-print" id="addMemberChip" style="border-style:dashed;">+ Naya</div>`;
+  let body = activeOtherMember ? renderPersonTab({type:'other', id:activeOtherMember}) : '';
+  return `<div class="member-chips">${chips}</div>${body}`;
+}
+
+/* ---------------- Order List tab ---------------- */
+let orderChecked = {};
+let orderQty = {};
+
+function renderOrderTab(){
+  const today = todayISO();
+  let groups = [];
+  allPersonRefs().forEach(ref=>{
+    const g = getPersonGroup(ref);
+    if(g.medicines.length===0) return;
+    groups.push({ref, label:g.label||g.name, meds:g.medicines});
+  });
+  if(groups.length===0){
+    return emptyState('Order list banane ke liye pehle dawai add karein', '');
+  }
+  let html = `<p style="font-size:12.5px;color:var(--text-muted);margin:0 0 4px;">Kam stock waali dawaiyan already select hain. Quantity edit karke PDF share ya WhatsApp text lein.</p>`;
+  groups.forEach(grp=>{
+    html += `<div class="order-group-title">${escapeHtml(grp.label)}</div>`;
+    grp.meds.forEach(med=>{
+      const stock = computeStock(med, today);
+      const low = stock.tracked && stock.daysRemaining<=12;
+      if(!(med.id in orderChecked)) orderChecked[med.id] = low;
+      if(!(med.id in orderQty)) orderQty[med.id] = (med.unit==='gel'||med.unit==='drop') ? Math.min(2, med.packQty||1) || 1 : (med.packQty || 0);
+      html += `<div class="order-row">
+        <input type="checkbox" data-order-check="${med.id}" ${orderChecked[med.id]?'checked':''}>
+        <div style="flex:1;">
+          <div class="oname">${escapeHtml(med.name)}</div>
+          <div class="ometa">${DOSING_LABELS[med.dosing]} · ${UNIT_LABELS[med.unit]||''} · ${stock.tracked ? fmtDays(stock) : (stock.status==='sos'?'SOS':'Qty set nahi')}</div>
         </div>
-        <div id="pdfContent"></div>
-      </div>
+        <input type="number" class="order-qty" data-order-qty="${med.id}" value="${orderQty[med.id]}" min="0">
+      </div>`;
+    });
+  });
+  html += `<div class="order-actions no-print">
+    <button class="btn-primary" id="sharePdfBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M16 6l-4-4-4 4M12 2v14"/></svg> PDF Share (WhatsApp)</button>
+    <div class="order-actions-row">
+      <button class="btn-secondary" id="waBtn">WhatsApp Text</button>
+      <button class="btn-secondary" id="printBtn">Print</button>
+    </div>
+  </div>`;
+  html += renderHistorySection();
+  return html;
+}
 
-      <div style="display:flex; gap:8px; margin-top:15px;">
-        <button class="btn btn-primary" style="flex:1;" onclick="window.print()">🖨️ Download PDF / Print</button>
-        <button class="btn btn-danger" onclick="closeOrderModal()">Cancel</button>
+function renderHistorySection(){
+  let html = `<button class="history-toggle no-print" id="historyToggle">${historyOpen?'▾':'▸'} Order History (${state.orderHistory.length})</button>`;
+  if(!historyOpen) return html;
+  if(state.orderHistory.length===0){
+    html += `<p style="font-size:12.5px;color:var(--text-faint);">Abhi koi order history nahi hai.</p>`;
+    return html;
+  }
+  const sorted = [...state.orderHistory].sort((a,b)=> b.date.localeCompare(a.date));
+  sorted.forEach(h=>{
+    const itemsTxt = h.items.map(i=>`${i.name} (${i.person}) x${i.qty}`).join(', ');
+    html += `<div class="history-item">
+      <div class="history-head">
+        <div class="history-date">${fmtDate(h.date)}</div>
+        <div class="history-count">${h.items.length} dawai</div>
+      </div>
+      <div class="history-items">${escapeHtml(itemsTxt)}</div>
+      <div class="history-actions no-print">
+        ${h.bill ? `<img class="bill-thumb" src="${h.bill}" data-view-bill="${h.id}">` : `<button data-add-bill="${h.id}">+ Bill Photo</button>`}
+        <button data-del-history="${h.id}">Delete</button>
+      </div>
+    </div>`;
+  });
+  return html;
+}
+
+/* ---------------- Med card ---------------- */
+function medCard(ref, med, stock, showPerson){
+  const dpd = dosesPerDay(med);
+  const dpdLabel = med.dosing==='CUSTOM' ? (dpd+'x/din') : DOSING_LABELS[med.dosing];
+  let bottom = '';
+  if(stock.status==='sos') bottom = `<div class="sos-tag">Zaroorat par li jaati hai — tracking nahi</div>`;
+  else if(stock.status==='unset') bottom = `<div class="needqty-tag">Stock quantity add karein — Restock dabayein</div>`;
+  else{
+    bottom = `<div class="capsule-wrap">
+      <div class="capsule-track"><div class="capsule-fill ${stock.status}" style="width:${Math.max(3,stock.pctLeft)}%;"></div></div>
+      <div class="days-label">
+        <span class="days-num ${stock.status}">${fmtDays(stock)}</span>
+        <span class="finish-date">khatam: ${fmtDate(stock.finishDate)}</span>
+      </div>
+    </div>`;
+  }
+  const personTag = showPerson ? `<div class="med-person">${escapeHtml(getPersonLabel(ref))}</div>` : '';
+  return `<div class="med-card ${cssClass(stock.status)}">
+    ${personTag}
+    <div class="med-top">
+      <div>
+        <div class="med-name">${escapeHtml(med.name)} <span class="unit-tag">${UNIT_LABELS[med.unit]||''}</span></div>
+        <div class="med-meta"><span class="dosing-badge">${dpdLabel}</span><b>${med.qtyPerDose}</b> ${UNIT_LABELS[med.unit]||med.unit} / dose ${med.instructions ? '· '+escapeHtml(med.instructions):''}</div>
       </div>
     </div>
-  </div>
+    ${bottom}
+    <div class="med-actions no-print">
+      <button data-edit="${med.id}" data-ref='${JSON.stringify(ref)}'>Edit</button>
+      <button class="restock" data-restock="${med.id}" data-ref='${JSON.stringify(ref)}'>Restock</button>
+      <button class="danger-txt" data-delete="${med.id}" data-ref='${JSON.stringify(ref)}'>Delete</button>
+    </div>
+  </div>`;
+}
 
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Error:', err));
-    }
+function emptyState(title, sub){
+  return `<div class="empty">
+    <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#8A93A2" stroke-width="1.5"><rect x="3" y="9" width="18" height="6" rx="3" transform="rotate(-45 12 12)"/><path d="M9 15 L15 9"/></svg>
+    <p><b style="color:var(--text-muted);">${title}</b>${sub?'<br>'+sub:''}</p>
+  </div>`;
+}
+function escapeHtml(s){
+  if(s===undefined||s===null) return '';
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
 
-    function updateOnlineStatus() {
-      const el = document.getElementById('netStatus');
-      if (navigator.onLine) {
-        el.className = "status-badge status-online";
-        el.innerText = "Online";
-      } else {
-        el.className = "status-badge status-offline";
-        el.innerText = "Offline Mode";
+/* ============================================================
+   EVENT WIRING
+   ============================================================ */
+let editingRef = null, editingMedId = null;
+let restockRef = null, restockMedId = null;
+let billTargetHistoryId = null;
+
+function attachDynamicListeners(){
+  document.querySelectorAll('[data-add-med]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const type = b.dataset.addMed;
+      let ref = type==='other' ? {type:'other', id:activeOtherMember} : {type};
+      openMedModal(ref, null);
+    });
+  });
+  document.querySelectorAll('[data-edit]').forEach(b=>{
+    b.addEventListener('click', ()=> openMedModal(JSON.parse(b.dataset.ref), b.dataset.edit));
+  });
+  document.querySelectorAll('[data-restock]').forEach(b=>{
+    b.addEventListener('click', ()=> openRestockModal(JSON.parse(b.dataset.ref), b.dataset.restock));
+  });
+  document.querySelectorAll('[data-delete]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      if(confirm('Ye dawai delete karni hai?')){
+        const ref = JSON.parse(b.dataset.ref);
+        const g = getPersonGroup(ref);
+        g.medicines = g.medicines.filter(m=>m.id!==b.dataset.delete);
+        saveState(); render(); toast('Delete ho gaya');
       }
-    }
-    window.addEventListener('online', updateOnlineStatus);
-    window.addEventListener('offline', updateOnlineStatus);
-
-    let db;
-    const request = indexedDB.open("MedTrackerDB", 1);
-    request.onupgradeneeded = (e) => {
-      db = e.target.result;
-      if (!db.objectStoreNames.contains("medicines")) {
-        db.createObjectStore("medicines", { keyPath: "id", autoIncrement: true });
+    });
+  });
+  const addMemberBtn = document.getElementById('addMemberBtn');
+  if(addMemberBtn) addMemberBtn.addEventListener('click', openMemberModal);
+  const addMemberChip = document.getElementById('addMemberChip');
+  if(addMemberChip) addMemberChip.addEventListener('click', openMemberModal);
+  document.querySelectorAll('[data-member]').forEach(c=>{
+    c.addEventListener('click', (e)=>{
+      if(e.target.dataset.delMember) return;
+      activeOtherMember = c.dataset.member; render();
+    });
+  });
+  document.querySelectorAll('[data-del-member]').forEach(x=>{
+    x.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      if(confirm('Ye family member aur unki dawaiyan delete karni hain?')){
+        state.others = state.others.filter(m=>m.id!==x.dataset.delMember);
+        if(activeOtherMember===x.dataset.delMember) activeOtherMember=null;
+        saveState(); render(); toast('Member delete ho gaya');
       }
-    };
-    request.onsuccess = (e) => {
-      db = e.target.result;
-      seedDefaultDataIfNeeded();
-    };
+    });
+  });
+  document.querySelectorAll('[data-order-check]').forEach(c=>{
+    c.addEventListener('change', ()=>{ orderChecked[c.dataset.orderCheck]=c.checked; });
+  });
+  document.querySelectorAll('[data-order-qty]').forEach(i=>{
+    i.addEventListener('input', ()=>{ orderQty[i.dataset.orderQty]=Number(i.value)||0; });
+  });
+  const sharePdfBtn = document.getElementById('sharePdfBtn');
+  if(sharePdfBtn) sharePdfBtn.addEventListener('click', doSharePdf);
+  const printBtn = document.getElementById('printBtn');
+  if(printBtn) printBtn.addEventListener('click', doPrint);
+  const waBtn = document.getElementById('waBtn');
+  if(waBtn) waBtn.addEventListener('click', doWhatsapp);
+  const historyToggle = document.getElementById('historyToggle');
+  if(historyToggle) historyToggle.addEventListener('click', ()=>{ historyOpen=!historyOpen; render(); });
+  document.querySelectorAll('[data-add-bill]').forEach(b=>{
+    b.addEventListener('click', ()=>{ billTargetHistoryId=b.dataset.addBill; document.getElementById('billFileInput').click(); });
+  });
+  document.querySelectorAll('[data-view-bill]').forEach(img=>{
+    img.addEventListener('click', ()=>{
+      const h = state.orderHistory.find(x=>x.id===img.dataset.viewBill);
+      if(h && h.bill){ const w = window.open(); w.document.write('<img src="'+h.bill+'" style="max-width:100%;">'); }
+    });
+  });
+  document.querySelectorAll('[data-del-history]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      if(confirm('Ye history entry delete karni hai?')){
+        state.orderHistory = state.orderHistory.filter(h=>h.id!==b.dataset.delHistory);
+        saveState(); render();
+      }
+    });
+  });
+}
 
-    let currentTab = 'Dadaji';
+/* ---------------- Medicine modal ---------------- */
+const medOverlay = document.getElementById('medOverlay');
+document.getElementById('f_dosing').addEventListener('change', (e)=>{
+  document.getElementById('customFreqWrap').style.display = e.target.value==='CUSTOM' ? 'block':'none';
+});
+function openMedModal(ref, medId){
+  editingRef = ref; editingMedId = medId;
+  const g = getPersonGroup(ref);
+  const med = medId ? g.medicines.find(m=>m.id===medId) : null;
+  document.getElementById('medModalTitle').textContent = med ? 'Dawai Edit Karein' : ((getPersonLabel(ref))+' ke liye Dawai Add Karein');
+  document.getElementById('f_name').value = med ? med.name : '';
+  document.getElementById('f_dosing').value = med ? med.dosing : 'OD';
+  document.getElementById('customFreqWrap').style.display = (med && med.dosing==='CUSTOM') ? 'block':'none';
+  document.getElementById('f_customFreq').value = med ? (med.customFreq||'') : '';
+  document.getElementById('f_qtyPerDose').value = med ? med.qtyPerDose : 1;
+  document.getElementById('f_unit').value = med ? med.unit : 'tablet';
+  document.getElementById('f_packQty').value = med ? (med.packQty||'') : '';
+  document.getElementById('f_purchaseDate').value = med ? (med.purchaseDate||todayISO()) : todayISO();
+  document.getElementById('f_instructions').value = med ? (med.instructions||'') : '';
+  medOverlay.classList.add('show');
+}
+document.getElementById('medCancelBtn').addEventListener('click', ()=>medOverlay.classList.remove('show'));
+document.getElementById('medSaveBtn').addEventListener('click', ()=>{
+  const name = document.getElementById('f_name').value.trim();
+  if(!name){ toast('Dawai ka naam daalein'); return; }
+  const packQty = Number(document.getElementById('f_packQty').value)||0;
+  const purchaseDate = document.getElementById('f_purchaseDate').value || todayISO();
+  const dosing = document.getElementById('f_dosing').value;
+  const customFreq = Number(document.getElementById('f_customFreq').value)||0;
+  const qtyPerDose = Number(document.getElementById('f_qtyPerDose').value)||1;
+  const unit = document.getElementById('f_unit').value;
+  const instructions = document.getElementById('f_instructions').value.trim();
+  const g = getPersonGroup(editingRef);
+  if(editingMedId){
+    const med = g.medicines.find(m=>m.id===editingMedId);
+    Object.assign(med, {name, dosing, customFreq, qtyPerDose, unit, packQty, purchaseDate, instructions});
+  }else{
+    g.medicines.push({id:uid(), name, dosing, customFreq, qtyPerDose, unit, packQty, purchaseDate, instructions});
+  }
+  saveState();
+  medOverlay.classList.remove('show');
+  render();
+  toast('Save ho gaya');
+});
 
-    function switchTab(tab) {
-      currentTab = tab;
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
+/* ---------------- Restock modal ---------------- */
+const restockOverlay = document.getElementById('restockOverlay');
+function openRestockModal(ref, medId){
+  restockRef = ref; restockMedId = medId;
+  const g = getPersonGroup(ref);
+  const med = g.medicines.find(m=>m.id===medId);
+  document.getElementById('restockMedName').textContent = med.name;
+  document.getElementById('r_packQty').value = med.packQty || '';
+  document.getElementById('r_purchaseDate').value = todayISO();
+  restockOverlay.classList.add('show');
+}
+document.getElementById('restockCancelBtn').addEventListener('click', ()=>restockOverlay.classList.remove('show'));
+document.getElementById('restockSaveBtn').addEventListener('click', ()=>{
+  const g = getPersonGroup(restockRef);
+  const med = g.medicines.find(m=>m.id===restockMedId);
+  med.packQty = Number(document.getElementById('r_packQty').value)||0;
+  med.purchaseDate = document.getElementById('r_purchaseDate').value || todayISO();
+  saveState();
+  restockOverlay.classList.remove('show');
+  render();
+  toast('Stock update ho gaya');
+});
+
+/* ---------------- Member modal ---------------- */
+const memberOverlay = document.getElementById('memberOverlay');
+function openMemberModal(){ document.getElementById('m_name').value=''; memberOverlay.classList.add('show'); }
+document.getElementById('memberCancelBtn').addEventListener('click', ()=>memberOverlay.classList.remove('show'));
+document.getElementById('memberSaveBtn').addEventListener('click', ()=>{
+  const name = document.getElementById('m_name').value.trim();
+  if(!name){ toast('Naam daalein'); return; }
+  const id = uid();
+  state.others.push({id, name, medicines:[]});
+  activeOtherMember = id;
+  saveState();
+  memberOverlay.classList.remove('show');
+  render();
+  toast('Member add ho gaya');
+});
+
+/* ---------------- Order collection + history logging ---------------- */
+function collectOrderItems(){
+  let groups = [];
+  allPersonRefs().forEach(ref=>{
+    const g = getPersonGroup(ref);
+    const items = g.medicines.filter(m=>orderChecked[m.id]);
+    if(items.length) groups.push({label:g.label||g.name, items});
+  });
+  return groups;
+}
+function logOrderSent(groups){
+  const flatItems = [];
+  groups.forEach(grp=>grp.items.forEach(med=>{
+    flatItems.push({person:grp.label, name:med.name, qty:orderQty[med.id], unit:med.unit});
+  }));
+  state.orderHistory.push({id:uid(), date:todayISO(), items:flatItems, bill:null});
+  state.lastOrderDate = todayISO();
+  saveState();
+}
+
+/* ---------------- Print ---------------- */
+function doPrint(){
+  const groups = collectOrderItems();
+  if(groups.length===0){ toast('Kam se kam ek dawai select karein'); return; }
+  let html = `<div class="print-head"><h2>Dawai Order List</h2><div class="pdate">Date: ${fmtDate(todayISO())}</div></div>`;
+  groups.forEach(grp=>{
+    html += `<div class="print-group"><h3>${escapeHtml(grp.label)}</h3><table class="print-table"><tr><th>Dawai</th><th>Dosing</th><th>Order Qty</th></tr>`;
+    grp.items.forEach(med=>{
+      html += `<tr><td>${escapeHtml(med.name)}${med.instructions?'<br><span style="color:#777;font-size:11px;">'+escapeHtml(med.instructions)+'</span>':''}</td><td>${DOSING_LABELS[med.dosing]} — ${med.qtyPerDose} ${UNIT_LABELS[med.unit]}</td><td class="qtycol">${orderQty[med.id]}</td></tr>`;
+    });
+    html += `</table></div>`;
+  });
+  html += `<div class="print-foot">Dawai Tracker se generate hui list</div>`;
+  document.getElementById('printSheet').innerHTML = html;
+  window.print();
+  logOrderSent(groups);
+  render();
+}
+
+/* ---------------- WhatsApp text ---------------- */
+function doWhatsapp(){
+  const groups = collectOrderItems();
+  if(groups.length===0){ toast('Kam se kam ek dawai select karein'); return; }
+  let text = `*Dawai Order List* (${fmtDate(todayISO())})\n`;
+  groups.forEach(grp=>{
+    text += `\n*${grp.label}*\n`;
+    grp.items.forEach(med=>{ text += `- ${med.name} (${DOSING_LABELS[med.dosing]}) x ${orderQty[med.id]} ${UNIT_LABELS[med.unit]}\n`; });
+  });
+  navigator.clipboard.writeText(text).then(()=>{
+    toast('List copy ho gayi — WhatsApp mein paste karein');
+    logOrderSent(groups); render();
+  }).catch(()=>{ toast('Copy nahi ho paya'); });
+}
+
+/* ---------------- PDF share ---------------- */
+function buildPdfDoc(groups){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  let y = 18;
+  doc.setFont('helvetica','bold'); doc.setFontSize(16);
+  doc.text('Dawai Order List', 14, y); y+=7;
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(90);
+  doc.text('Date: '+fmtDate(todayISO()), 14, y); y+=8;
+  doc.setDrawColor(200); doc.line(14, y, 196, y); y+=8;
+  groups.forEach(grp=>{
+    if(y>270){ doc.addPage(); y=18; }
+    doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(20,40,60);
+    doc.text(grp.label, 14, y); y+=6;
+    doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(30);
+    grp.items.forEach(med=>{
+      if(y>275){ doc.addPage(); y=18; }
+      const line1 = `${med.name}  —  ${DOSING_LABELS[med.dosing]}, ${med.qtyPerDose} ${UNIT_LABELS[med.unit]}/dose`;
+      doc.text(line1, 16, y);
+      doc.setFont('helvetica','bold');
+      doc.text('Qty: '+orderQty[med.id], 178, y, {align:'right'});
+      doc.setFont('helvetica','normal');
+      y+=6;
+      if(med.instructions){
+        doc.setFontSize(9); doc.setTextColor(120);
+        doc.text(med.instructions, 16, y); y+=5;
+        doc.setFontSize(10.5); doc.setTextColor(30);
+      }
+    });
+    y+=4;
+  });
+  return doc;
+}
+async function doSharePdf(){
+  const groups = collectOrderItems();
+  if(groups.length===0){ toast('Kam se kam ek dawai select karein'); return; }
+  if(!window.jspdf){ toast('PDF library load nahi hui — internet check karein'); return; }
+  const doc = buildPdfDoc(groups);
+  const fileName = 'dawai-order-'+todayISO()+'.pdf';
+  const blob = doc.output('blob');
+  const file = new File([blob], fileName, {type:'application/pdf'});
+  try{
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], title:'Dawai Order List', text:'Dawai order list attached'});
+      logOrderSent(groups); render();
+      return;
+    }
+  }catch(e){ /* user cancelled share or unsupported — fall through to download */ }
+  doc.save(fileName);
+  toast('PDF download ho gaya — WhatsApp mein attach kar dein');
+  logOrderSent(groups); render();
+}
+
+/* ---------------- Bill photo (compressed) ---------------- */
+document.getElementById('billFileInput').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file || !billTargetHistoryId) return;
+  const img = new Image();
+  const reader = new FileReader();
+  reader.onload = (ev)=>{
+    img.onload = ()=>{
+      const maxW = 900;
+      const scale = Math.min(1, maxW/img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width*scale; canvas.height = img.height*scale;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img,0,0,canvas.width,canvas.height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+      const h = state.orderHistory.find(x=>x.id===billTargetHistoryId);
+      if(h){ h.bill = dataUrl; saveState(); render(); toast('Bill photo add ho gaya'); }
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+});
+
+/* ---------------- Reminders ---------------- */
+document.getElementById('remindBtn').addEventListener('click', async ()=>{
+  if(!state.remindersOn){
+    if('Notification' in window){
+      const perm = await Notification.requestPermission();
+      if(perm!=='granted'){ toast('Notification permission nahi mili'); return; }
+    }
+    state.remindersOn = true; saveState(); render(); toast('Reminders ON ho gaye');
+  }else{
+    state.remindersOn = false; saveState(); render(); toast('Reminders OFF ho gaye');
+  }
+});
+function checkReminder(){
+  if(!state.remindersOn) return;
+  if(!('Notification' in window) || Notification.permission!=='granted') return;
+  if(state.lastReminderShown===todayISO()) return;
+  const daysSince = state.lastOrderDate ? daysBetween(state.lastOrderDate, todayISO()) : 999;
+  if(daysSince>=30){
+    try{ new Notification('Dawai Tracker', {body:'Order ko '+daysSince+' din ho gaye — chemist ko list bhej dein.', icon:'./icon-192.png'}); }catch(e){}
+    state.lastReminderShown = todayISO(); saveState();
+  }
+}
+
+/* ---------------- Export / Import ---------------- */
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'dawai-tracker-backup-'+todayISO()+'.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('Backup download ho gaya');
+});
+document.getElementById('importBtn').addEventListener('click', ()=> document.getElementById('importFile').click());
+document.getElementById('importFile').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev)=>{
+    try{
+      const parsed = JSON.parse(ev.target.result);
+      if(!parsed.baba && !parsed.maa) throw new Error('invalid');
+      state = normalize(parsed);
+      saveState();
+      activeOtherMember = state.others.length ? state.others[0].id : null;
       render();
-    }
+      toast('Import ho gaya');
+    }catch(err){ toast('Ye file valid backup nahi hai'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
 
-    function seedDefaultDataIfNeeded() {
-      const tx = db.transaction("medicines", "readonly");
-      const store = tx.objectStore("medicines");
-      store.count().onsuccess = (e) => {
-        if (e.target.result === 0) {
-          const defaults = [
-            // Dadaji
-            { member: "Dadaji", name: "Omez", slot: "Before Breakfast", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Amaryl 1mg", slot: "Before Breakfast", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Monit GTN 6.4", slot: "10:00 AM Breakfast", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Telma - H", slot: "10:00 AM Breakfast", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Met Xl 12.5", slot: "10:00 AM Breakfast", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Solifenacin 5mg", slot: "10:00 AM Breakfast", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Amlodipine 2.5mg", slot: "4:00 PM", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Deplatt A-75", slot: "4:00 PM", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Nityam", slot: "Before Dinner", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Rivaxa 2.5", slot: "After Dinner / Bedtime", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Sildo D8", slot: "After Dinner / Bedtime", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Maxgalin 50", slot: "After Dinner / Bedtime", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Ativan 1mg", slot: "After Dinner / Bedtime", dose: "HS", stock: "" },
-            { member: "Dadaji", name: "Tonact 40", slot: "After Dinner / Bedtime", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Dolo 500", slot: "After Dinner / Bedtime", dose: "SOS", stock: "" },
+/* ---------------- Toast ---------------- */
+let toastTimer;
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2400);
+}
 
-            // Dadiji / Maa
-            { member: "Dadiji", name: "Pantocid-DSR", slot: "Before Breakfast", dose: "BD", stock: "" },
-            { member: "Dadiji", name: "Pregacip -M", slot: "Lunch", dose: "BD", stock: "" },
-            { member: "Dadiji", name: "Crampnil", slot: "Lunch", dose: "OD", stock: "" },
-            { member: "Dadiji", name: "Teptawun ER 50", slot: "Lunch", dose: "OD", stock: "" },
-            { member: "Dadiji", name: "Pyrigesic 1000", slot: "Lunch", dose: "OD", stock: "" },
-            { member: "Dadiji", name: "Amlovas 5mg", slot: "Lunch", dose: "OD", stock: "" },
-            { member: "Dadiji", name: "Refresh Eye Drop", slot: "External / Drops", dose: "1 Unit", stock: "" },
-            { member: "Dadiji", name: "Zolfresh 5mg", slot: "After Dinner / Bedtime", dose: "HS", stock: "" },
-            { member: "Dadiji", name: "Dulcolex", slot: "After Dinner / Bedtime", dose: "BD", stock: "" },
-            { member: "Dadiji", name: "Dicloran Gel", slot: "External / Drops", dose: "1 Unit", stock: "" },
-            { member: "Dadiji", name: "Soformycin", slot: "External / Drops", dose: "1 Unit", stock: "" },
-            { member: "Dadiji", name: "Betnovate", slot: "External / Drops", dose: "1 Unit", stock: "" }
-          ];
-          const writeTx = db.transaction("medicines", "readwrite");
-          defaults.forEach(item => writeTx.objectStore("medicines").add(item));
-          writeTx.oncomplete = () => render();
-        } else {
-          render();
-        }
-      };
-    }
+/* ---------------- Service worker ---------------- */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{ navigator.serviceWorker.register('./service-worker.js').catch(()=>{}); });
+}
 
-    function checkOverallReminders(allMeds) {
-      let lowMeds = [];
-      allMeds.forEach(m => {
-        let dailyCount = m.dose === 'BD' ? 2 : (m.dose === 'TID' ? 3 : 1);
-        let currentStock = m.stock === "" ? 0 : parseInt(m.stock);
-        if (m.dose !== 'SOS' && m.dose !== '1 Unit') {
-          let daysLeft = Math.floor(currentStock / dailyCount);
-          if (daysLeft <= 5) {
-            lowMeds.push(`${m.name} (${m.member})`);
-          }
-        }
-      });
-
-      const banner = document.getElementById('alertBanner');
-      if (lowMeds.length > 0) {
-        banner.style.display = 'block';
-        banner.innerHTML = `⚠️ <b>Refill Reminder:</b> ${lowMeds.length} medicine(s) running out in <= 5 days!`;
-      } else {
-        banner.style.display = 'none';
-      }
-    }
-
-    function render() {
-      const scrollPos = window.scrollY;
-      const container = document.getElementById('medList');
-      container.innerHTML = '';
-      
-      const tx = db.transaction("medicines", "readonly");
-      tx.objectStore("medicines").getAll().onsuccess = (e) => {
-        const allMeds = e.target.result;
-        checkOverallReminders(allMeds);
-
-        const meds = allMeds.filter(m => m.member === currentTab);
-        if (meds.length === 0) {
-          container.innerHTML = `<p style="text-align:center; color:#64748b; padding:20px;">No medicines listed for ${currentTab}.</p>`;
-          return;
-        }
-
-        meds.forEach(m => {
-          let dailyCount = m.dose === 'BD' ? 2 : (m.dose === 'TID' ? 3 : 1);
-          let currentStock = m.stock === "" ? 0 : parseInt(m.stock);
-          let daysLeft = (m.dose === 'SOS' || m.dose === '1 Unit') ? 'N/A' : Math.floor(currentStock / dailyCount);
-
-          let alertText = daysLeft <= 5 && daysLeft !== 'N/A' 
-            ? `<span style="color:var(--danger); font-weight:bold;">⚠️ Out in ${daysLeft} Days</span>`
-            : `<span style="color:var(--success); font-weight:bold;">✅ ${daysLeft} Days Left</span>`;
-
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.innerHTML = `
-            <div class="med-header">
-              <div>
-                <div class="med-title">${m.name}</div>
-                <div style="font-size:0.8rem; color:#64748b;">⏱️ ${m.slot}</div>
-              </div>
-              <span class="status-badge" style="background:#e0e7ff; color:#3730a3;">${m.dose}</span>
-            </div>
-            <div class="stock-box">
-              <div>
-                <div style="font-size:0.8rem; font-weight:bold;">Stock Count:</div>
-                ${alertText}
-              </div>
-              <input type="number" placeholder="Qty" value="${m.stock}" onchange="updateStock(${m.id}, this.value)" />
-            </div>
-            <div style="display:flex; gap:6px; margin-top:10px;">
-              <button class="btn btn-warning" style="flex:1;" onclick="openModal(${m.id})">✏️ Edit</button>
-              <button class="btn btn-danger" onclick="deleteMed(${m.id})">🗑️ Delete</button>
-            </div>
-          `;
-          container.appendChild(card);
-        });
-
-        window.scrollTo(0, scrollPos);
-      };
-    }
-
-    function updateStock(id, newStock) {
-      const tx = db.transaction("medicines", "readwrite");
-      const store = tx.objectStore("medicines");
-      store.get(id).onsuccess = (e) => {
-        const data = e.target.result;
-        data.stock = newStock === "" ? "" : parseInt(newStock);
-        store.put(data);
-        tx.oncomplete = () => render();
-      };
-    }
-
-    function openModal(id = null) {
-      document.getElementById('editId').value = id || '';
-      if (id) {
-        db.transaction("medicines", "readonly").objectStore("medicines").get(id).onsuccess = (e) => {
-          const m = e.target.result;
-          document.getElementById('mMember').value = m.member;
-          document.getElementById('mName').value = m.name;
-          document.getElementById('mSlot').value = m.slot;
-          document.getElementById('mDose').value = m.dose;
-          document.getElementById('mStock').value = m.stock;
-        };
-      } else {
-        document.getElementById('mMember').value = currentTab;
-        document.getElementById('mName').value = '';
-        document.getElementById('mStock').value = '';
-      }
-      document.getElementById('medModal').style.display = 'flex';
-    }
-
-    function closeModal() { document.getElementById('medModal').style.display = 'none'; }
-
-    function saveMed() {
-      const id = document.getElementById('editId').value;
-      const rawStock = document.getElementById('mStock').value;
-      const data = {
-        member: document.getElementById('mMember').value,
-        name: document.getElementById('mName').value,
-        slot: document.getElementById('mSlot').value,
-        dose: document.getElementById('mDose').value,
-        stock: rawStock === "" ? "" : parseInt(rawStock)
-      };
-      if (!data.name) return alert('Medicine name required!');
-
-      const tx = db.transaction("medicines", "readwrite");
-      const store = tx.objectStore("medicines");
-      if (id) { data.id = parseInt(id); store.put(data); }
-      else { store.add(data); }
-
-      tx.oncomplete = () => { closeModal(); render(); };
-    }
-
-    function deleteMed(id) {
-      if (confirm('Delete this medicine?')) {
-        const tx = db.transaction("medicines", "readwrite");
-        tx.objectStore("medicines").delete(id);
-        tx.oncomplete = () => render();
-      }
-    }
-
-    function exportData() {
-      db.transaction("medicines", "readonly").objectStore("medicines").getAll().onsuccess = (e) => {
-        const blob = new Blob([JSON.stringify(e.target.result, null, 2)], {type : 'application/json'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `MedTracker_Backup_${new Date().toISOString().slice(0,10)}.json`;
-        a.click();
-      };
-    }
-
-    function openOrderModal() {
-      document.getElementById('orderSelectMember').value = currentTab;
-      document.getElementById('pdfDate').innerText = "Order Date: " + new Date().toLocaleDateString();
-      renderPdfPreview();
-      document.getElementById('orderModal').style.display = 'flex';
-    }
-
-    function closeOrderModal() {
-      document.getElementById('orderModal').style.display = 'none';
-    }
-
-    function renderPdfPreview() {
-      const sel = document.getElementById('orderSelectMember').value;
-      const content = document.getElementById('pdfContent');
-      content.innerHTML = '';
-
-      db.transaction("medicines", "readonly").objectStore("medicines").getAll().onsuccess = (e) => {
-        const all = e.target.result;
-        let filtered = sel === "All" ? all : all.filter(m => m.member === sel);
-
-        if (filtered.length === 0) {
-          content.innerHTML = `<p style="text-align:center; padding:10px; font-size:0.85rem;">No medicines found for ${sel}.</p>`;
-          return;
-        }
-
-        let html = `
-          <h4 style="margin:10px 0 4px 0;">Patient: ${sel === 'All' ? 'All Family Members' : sel}</h4>
-          <table class="pdf-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Medicine Name</th>
-                <th>Dose</th>
-                <th>Order Qty</th>
-              </tr>
-            </thead>
-            <tbody>
-        `;
-
-        filtered.forEach((m, i) => {
-          let reqQty = (m.stock !== "" && parseInt(m.stock) > 0) ? m.stock : 30;
-          html += `
-            <tr>
-              <td>${i+1}</td>
-              <td><b>${m.name}</b><br><small>${m.slot}</small></td>
-              <td>${m.dose}</td>
-              <td><b>${reqQty}</b></td>
-            </tr>
-          `;
-        });
-
-        html += `</tbody></table>`;
-        content.innerHTML = html;
-      };
-    }
-  </script>
+/* ---------------- Init ---------------- */
+render();
+checkReminder();
+</script>
 </body>
 </html>

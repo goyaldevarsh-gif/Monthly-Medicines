@@ -1,0 +1,314 @@
+{
+  "baba": {
+    "label": "Baba",
+    "medicines": [
+      {
+        "id": "id_39coihfrye",
+        "name": "Omez",
+        "dosing": "OD",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "capsule",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "Empty stomach - before breakfast"
+      },
+      {
+        "id": "id_pco8gfxov8",
+        "name": "Amaryl 1mg",
+        "dosing": "OD",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "tablet",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "Empty stomach - before breakfast"
+      },
+      {
+        "id": "id_c0exvqmu51",
+        "name": "Monit GTN 6.4",
+        "dosing": "OD",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "tablet",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "10am - after breakfast"
+      },
+      {
+        "id": "id_25irf9c5vn",
+        "name": "Telma-H",
+        "dosing": "OD",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "tablet",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "10am - after breakfast"
+      },
+      {
+        "id": "id_5pvvxbpame",
+        "name": "Met XL 12.5",
+        "dosing": "OD",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "tablet",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "10am - after breakfast"
+      },
+      {
+        "id": "id_k69zb99lbo",
+        "name": "Solifenacin 5mg",
+        "dosing": "OD",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "tablet",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "10am - after breakfast"
+      },
+      {
+        "id": "id_6xisiidapw",
+        "name": "Amlodipine 2.5mg",
+        "dosing": "OD",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "tablet",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "4pm"
+      },
+      {
+        "id": "id_96e6u8qe8o",
+        "name": "Deplatt A-75",
+        "dosing": "OD",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "tablet",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "4pm"
+      },
+      {
+        "id": "id_w3suho4xew",
+        "name": "Nityam",
+        "dosing": "OD",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "tablet",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "Before dinner"
+      },
+      {
+        "id": "id_yj5nc5pjgt",
+        "name": "Rivaxa 2.5",
+        "dosing": "OD",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "tablet",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "After dinner"
+      },
+      {
+        "id": "id_8znt590uue",
+        "name": "Sildo D8",
+        "dosing": "OD",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "tablet",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "After dinner"
+      },
+      {
+        "id": "id_1vbtf327ub",
+        "name": "Maxgalin 50",
+        "dosing": "OD",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "capsule",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "After dinner"
+      },
+      {
+        "id": "id_5bn1rl6fpg",
+        "name": "Ativan 1",
+        "dosing": "HS",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "tablet",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "Raat - sone se pehle"
+      },
+      {
+        "id": "id_dd7v4evmr9",
+        "name": "Tonact 40",
+        "dosing": "HS",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "tablet",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "Raat - sone se pehle"
+      },
+      {
+        "id": "id_orfexhoedi",
+        "name": "Dolo 500",
+        "dosing": "SOS",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "tablet",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "Zaroorat par - bukhar/dard"
+      }
+    ]
+  },
+  "maa": {
+    "label": "Maa",
+    "medicines": [
+      {
+        "id": "id_kkx0ionxnw",
+        "name": "Pantocid-DSR",
+        "dosing": "BD",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "capsule",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "Before breakfast"
+      },
+      {
+        "id": "id_4nzzcqlami",
+        "name": "Pregacip-M",
+        "dosing": "BD",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "tablet",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "Lunch"
+      },
+      {
+        "id": "id_d1sw2zj5ok",
+        "name": "Crampnil",
+        "dosing": "OD",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "tablet",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "Lunch"
+      },
+      {
+        "id": "id_w2jk14afrd",
+        "name": "Teptawun ER 50",
+        "dosing": "OD",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "tablet",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "Lunch"
+      },
+      {
+        "id": "id_6gh1adq0uf",
+        "name": "Pyrigesic 1000",
+        "dosing": "OD",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "tablet",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "Lunch"
+      },
+      {
+        "id": "id_8yp1t6a1md",
+        "name": "Amlovas 5mg",
+        "dosing": "OD",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "tablet",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "Lunch"
+      },
+      {
+        "id": "id_4wxfgvh2l3",
+        "name": "Refresh Eye Drop",
+        "dosing": "TID",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "drop",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "Dosing confirm karein - assume kiya hai"
+      },
+      {
+        "id": "id_7c5a0jcgb0",
+        "name": "Zolfresh 5mg",
+        "dosing": "OD",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "tablet",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "Raat - sone se pehle. Dosing confirm karein - assume kiya hai"
+      },
+      {
+        "id": "id_35543ksrzx",
+        "name": "Dulcolex",
+        "dosing": "OD",
+        "customFreq": 0,
+        "qtyPerDose": 2,
+        "unit": "tablet",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "Lunch"
+      },
+      {
+        "id": "id_w5aub7pmv5",
+        "name": "Dicloran Gel",
+        "dosing": "BD",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "gel",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "Dosing confirm karein - assume kiya hai"
+      },
+      {
+        "id": "id_6od1noug11",
+        "name": "Soformycin",
+        "dosing": "BD",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "gel",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "Dosing confirm karein - assume kiya hai"
+      },
+      {
+        "id": "id_tus0vksfu0",
+        "name": "Betnovate",
+        "dosing": "OD",
+        "customFreq": 0,
+        "qtyPerDose": 1,
+        "unit": "gel",
+        "packQty": 0,
+        "purchaseDate": "",
+        "instructions": "Dosing confirm karein - assume kiya hai"
+      }
+    ]
+  },
+  "others": [],
+  "lastOrderDate": null,
+  "orderHistory": [],
+  "remindersOn": false,
+  "lastReminderShown": null
+}
