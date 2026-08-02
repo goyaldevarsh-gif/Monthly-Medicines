@@ -2,13 +2,12 @@
 <html lang="hi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>MedTracker Pro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>MedTracker Pro v6</title>
   
   <link rel="manifest" href="manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="MedTracker" />
   <meta name="theme-color" content="#2563eb" />
 
   <style>
@@ -21,6 +20,7 @@
       --danger: #ef4444;
       --warning: #f59e0b;
       --success: #10b981;
+      --orange: #f97316;
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -28,8 +28,8 @@
       color: var(--text);
       margin: 0;
       padding: 12px;
-      padding-top: env(safe-area-inset-top, 12px);
-      padding-bottom: 100px;
+      padding-top: max(12px, env(safe-area-inset-top));
+      padding-bottom: max(120px, env(safe-area-inset-bottom) + 90px);
       -webkit-tap-highlight-color: transparent;
     }
     .header {
@@ -48,7 +48,6 @@
       font-weight: bold;
     }
     .status-online { background: #dcfce7; color: #15803d; }
-    .status-offline { background: #fef3c7; color: #b45309; }
     
     .alert-banner {
       display: none;
@@ -60,46 +59,94 @@
       font-size: 0.85rem;
       font-weight: bold;
       margin-bottom: 12px;
-      text-align: center;
     }
 
-    .tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+    .tabs-wrapper {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
     .tab-btn {
-      flex: 1; padding: 12px 8px; background: var(--card-bg);
-      border: 1px solid var(--border); border-radius: 8px;
-      font-weight: bold; cursor: pointer; font-size: 0.9rem;
+      padding: 10px 14px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.85rem;
+      white-space: nowrap;
     }
     .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
     .card {
-      background: var(--card-bg); border-radius: 12px;
-      padding: 14px; margin-bottom: 10px; border: 1px solid var(--border);
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+      border: 1px solid var(--border);
+      position: relative;
     }
-    .med-header { display: flex; justify-content: space-between; align-items: center; }
+    .card-border-green { border-left: 6px solid var(--success); }
+    .card-border-yellow { border-left: 6px solid var(--warning); }
+    .card-border-orange { border-left: 6px solid var(--orange); }
+    .card-border-red { border-left: 6px solid var(--danger); }
+
+    .med-header { display: flex; justify-content: space-between; align-items: flex-start; }
     .med-title { font-size: 1.05rem; font-weight: bold; color: var(--primary); }
     
-    .stock-box {
-      background: #f1f5f9; padding: 8px; border-radius: 8px;
-      display: flex; justify-content: space-between; align-items: center; margin-top: 8px;
-    }
-    .stock-box input {
-      width: 65px; padding: 6px; text-align: center; font-weight: bold;
-      border-radius: 6px; border: 1px solid var(--border); font-size: 1rem;
+    .meta-tag {
+      font-size: 0.75rem;
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: bold;
     }
 
-    .btn { padding: 10px 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+    .stock-box {
+      background: #f8fafc;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 8px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .quick-refill-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+      align-items: center;
+    }
+    .btn-quick {
+      background: #e2e8f0;
+      color: #1e293b;
+      border: 1px solid #cbd5e1;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-quick:active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn { padding: 10px 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
     .btn-primary { background: var(--primary); color: white; }
     .btn-success { background: var(--success); color: white; }
     .btn-danger { background: var(--danger); color: white; }
     .btn-warning { background: var(--warning); color: white; }
+    .btn-secondary { background: #64748b; color: white; }
     
     .modal {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;
+      background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000;
     }
     .modal-content {
       background: white; padding: 20px; border-radius: 16px; width: 90%; max-width: 450px;
-      max-height: 85vh; overflow-y: auto;
+      max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     }
     .form-group { margin-bottom: 10px; }
     .form-group label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 4px; }
@@ -108,30 +155,19 @@
     .bottom-bar {
       position: fixed; bottom: 0; left: 0; right: 0; background: white;
       border-top: 1px solid var(--border); display: flex; padding: 12px; gap: 8px;
-      padding-bottom: env(safe-area-inset-bottom, 12px);
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+      z-index: 1000;
     }
     .bottom-bar button { flex: 1; }
 
-    .pdf-preview {
-      background: #fff;
-      padding: 15px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      margin-top: 10px;
-    }
-    .pdf-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-      font-size: 0.85rem;
-    }
-    .pdf-table th, .pdf-table td {
-      border: 1px solid #cbd5e1;
-      padding: 6px;
-      text-align: left;
-    }
+    .pdf-preview { background: #fff; padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-top: 10px; }
+    .pdf-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.8rem; }
+    .pdf-table th, .pdf-table td { border: 1px solid #cbd5e1; padding: 6px; text-align: left; }
     .pdf-table th { background: #f1f5f9; }
+
+    .history-list { font-size: 0.8rem; color: #475569; max-height: 150px; overflow-y: auto; margin-top: 8px; }
+    .history-item { border-bottom: 1px dashed var(--border); padding: 4px 0; display: flex; justify-content: space-between; }
 
     @media print {
       body * { visibility: hidden; }
@@ -144,42 +180,57 @@
 
   <div class="header">
     <h2 style="margin:0;">💊 Family MedTracker Pro</h2>
-    <span id="netStatus" class="status-badge status-online">Online</span>
   </div>
 
   <div id="alertBanner" class="alert-banner"></div>
 
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('Dadaji')">👴 Dadaji</button>
-    <button class="tab-btn" onclick="switchTab('Dadiji')">👵 Dadiji / Maa</button>
-    <button class="tab-btn" onclick="switchTab('Others')">👨‍👩‍👧‍👦 Others</button>
-  </div>
+  <!-- Dynamic Family Member Tabs -->
+  <div class="tabs-wrapper" id="memberTabs"></div>
 
-  <button class="btn btn-success" style="width:100%; margin-bottom:12px;" onclick="openModal()">➕ Add New Medicine</button>
+  <div style="display:flex; gap:8px; margin-bottom:12px;">
+    <button class="btn btn-success" style="flex:1;" onclick="openMedModal()">➕ Add Medicine</button>
+    <button class="btn btn-secondary" onclick="addNewMemberPrompt()">👤 Add Member</button>
+  </div>
 
   <div id="medList"></div>
 
   <div class="bottom-bar">
     <button class="btn btn-primary" onclick="exportData()">💾 Backup</button>
-    <button class="btn btn-warning" onclick="openOrderModal()">📄 Chemist PDF Order</button>
+    <button class="btn btn-warning" onclick="openOrderModal()">📄 Chemist Order Sheet</button>
   </div>
 
   <!-- Add/Edit Medicine Modal -->
   <div id="medModal" class="modal">
     <div class="modal-content">
-      <h3 id="modalTitle">Add Medicine</h3>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <h3 id="modalTitle" style="margin:0;">Add Medicine</h3>
+        <button class="btn btn-secondary" onclick="closeMedModal()">← Back</button>
+      </div>
       <input type="hidden" id="editId" />
       <div class="form-group">
-        <label>Category</label>
-        <select id="mMember">
-          <option value="Dadaji">Dadaji</option>
-          <option value="Dadiji">Dadiji / Maa</option>
-          <option value="Others">Others</option>
-        </select>
+        <label>Family Member</label>
+        <select id="mMember"></select>
       </div>
       <div class="form-group">
         <label>Medicine Name</label>
-        <input type="text" id="mName" placeholder="e.g. Omez / Telma-H" required />
+        <input type="text" id="mName" placeholder="e.g. Telma-H / Pantocid" required />
+      </div>
+      <div class="form-group">
+        <label>Medicine Form / Type</label>
+        <select id="mType">
+          <option value="Tablet">Tablet</option>
+          <option value="Capsule">Capsule</option>
+          <option value="Syrup">Syrup</option>
+          <option value="Eye Drop">Eye Drop</option>
+          <option value="Cream">Cream</option>
+          <option value="Gel">Gel</option>
+          <option value="Inhaler">Inhaler</option>
+          <option value="Injection">Injection</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Pack / Strip Size (Units per Strip/Bottle)</label>
+        <input type="number" id="mStripSize" placeholder="e.g. 10 or 15" value="15" />
       </div>
       <div class="form-group">
         <label>Time Slot</label>
@@ -190,44 +241,66 @@
           <option value="4:00 PM">4:00 PM</option>
           <option value="Before Dinner">Before Dinner</option>
           <option value="After Dinner / Bedtime">After Dinner / Bedtime</option>
-          <option value="External / Drops">External / Drops</option>
+          <option value="External Application">External Application</option>
         </select>
       </div>
       <div class="form-group">
         <label>Dosing Schedule</label>
         <select id="mDose">
-          <option value="OD">OD (Once daily - 1/day)</option>
-          <option value="BD">BD (Twice daily - 2/day)</option>
-          <option value="TID">TID (Thrice daily - 3/day)</option>
+          <option value="OD">OD (Once Daily - 1/day)</option>
+          <option value="BD">BD (Twice Daily - 2/day)</option>
+          <option value="TID">TID (Thrice Daily - 3/day)</option>
+          <option value="QID">QID (Four Times - 4/day)</option>
           <option value="HS">HS (Bedtime - 1/day)</option>
           <option value="SOS">SOS (As needed)</option>
-          <option value="1 Unit">1 Unit (Drops/Cream)</option>
+          <option value="1 Unit">1 Unit (Drops/Cream/Syrup)</option>
         </select>
       </div>
       <div class="form-group">
-        <label>Current Stock Count</label>
-        <input type="number" id="mStock" placeholder="Qty" value="" />
+        <label>Current Stock Count (Units/Tablets)</label>
+        <input type="number" id="mStock" placeholder="Current Stock" value="" />
       </div>
       <div style="display:flex; gap:8px; margin-top:15px;">
-        <button class="btn btn-primary" style="flex:1;" onclick="saveMed()">Save</button>
-        <button class="btn btn-danger" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" style="flex:1;" onclick="saveMed()">Save Medicine</button>
+        <button class="btn btn-danger" onclick="closeMedModal()">Cancel</button>
       </div>
     </div>
   </div>
 
-  <!-- Chemist PDF Order Modal -->
-  <div id="orderModal" class="modal">
+  <!-- Refill & Purchase History Modal -->
+  <div id="historyModal" class="modal">
     <div class="modal-content">
-      <h3>📋 Generate Chemist Order</h3>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <h3 style="margin:0;">Refill & Purchase History</h3>
+        <button class="btn btn-secondary" onclick="closeHistoryModal()">← Back</button>
+      </div>
+      <input type="hidden" id="histMedId" />
+      <p id="histMedTitle" style="font-weight:bold; color:var(--primary); margin:0 0 10px 0;"></p>
       
       <div class="form-group">
-        <label>Select Person for Order Sheet:</label>
-        <select id="orderSelectMember" onchange="renderPdfPreview()">
-          <option value="Dadaji">👴 Dadaji Only</option>
-          <option value="Dadiji">👵 Dadiji / Maa Only</option>
-          <option value="Others">👨‍👩‍👧‍👦 Others Only</option>
-          <option value="All">🌐 Combined (All Family Members)</option>
-        </select>
+        <label>Add New Purchased Units:</label>
+        <div style="display:flex; gap:6px;">
+          <input type="number" id="newPurchasedQty" placeholder="Qty (e.g. 30)" />
+          <button class="btn btn-success" onclick="addPurchaseRecord()">➕ Log</button>
+        </div>
+      </div>
+
+      <h4>Previous Logged Purchases:</h4>
+      <div id="historyLogs" class="history-list"></div>
+    </div>
+  </div>
+
+  <!-- Chemist PDF Order Sheet Modal -->
+  <div id="orderModal" class="modal">
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <h3 style="margin:0;">📋 Chemist Order Sheet</h3>
+        <button class="btn btn-secondary" onclick="closeOrderModal()">← Back</button>
+      </div>
+      
+      <div class="form-group">
+        <label>Select Person:</label>
+        <select id="orderSelectMember" onchange="renderPdfPreview()"></select>
       </div>
 
       <div id="printableArea" class="pdf-preview">
@@ -239,8 +312,8 @@
       </div>
 
       <div style="display:flex; gap:8px; margin-top:15px;">
-        <button class="btn btn-primary" style="flex:1;" onclick="window.print()">🖨️ Download PDF / Print</button>
-        <button class="btn btn-danger" onclick="closeOrderModal()">Cancel</button>
+        <button class="btn btn-primary" style="flex:1;" onclick="window.print()">🖨️ Save as PDF / Print</button>
+        <button class="btn btn-success" style="flex:1;" onclick="copyOrderText()">📋 WhatsApp Copy</button>
       </div>
     </div>
   </div>
@@ -250,21 +323,11 @@
       navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Error:', err));
     }
 
-    function updateOnlineStatus() {
-      const el = document.getElementById('netStatus');
-      if (navigator.onLine) {
-        el.className = "status-badge status-online";
-        el.innerText = "Online";
-      } else {
-        el.className = "status-badge status-offline";
-        el.innerText = "Offline Mode";
-      }
-    }
-    window.addEventListener('online', updateOnlineStatus);
-    window.addEventListener('offline', updateOnlineStatus);
-
     let db;
-    const request = indexedDB.open("MedTrackerDB", 1);
+    let members = JSON.parse(localStorage.getItem('medMembers')) || ["👴 Grandpa", "👵 Grandma", "👨 Dad", "👩 Mom"];
+    let activeMember = members[0];
+
+    const request = indexedDB.open("MedTrackerDB_v5", 1);
     request.onupgradeneeded = (e) => {
       db = e.target.result;
       if (!db.objectStoreNames.contains("medicines")) {
@@ -276,13 +339,27 @@
       seedDefaultDataIfNeeded();
     };
 
-    let currentTab = 'Dadaji';
+    function renderTabs() {
+      const container = document.getElementById('memberTabs');
+      container.innerHTML = '';
+      members.forEach(m => {
+        const btn = document.createElement('button');
+        btn.className = `tab-btn ${m === activeMember ? 'active' : ''}`;
+        btn.innerText = m;
+        btn.onclick = () => { activeMember = m; renderTabs(); renderMeds(); };
+        container.appendChild(btn);
+      });
+    }
 
-    function switchTab(tab) {
-      currentTab = tab;
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
-      render();
+    function addNewMemberPrompt() {
+      const name = prompt("Enter New Member Name (e.g. 👧 Sister):");
+      if (name && !members.includes(name)) {
+        members.push(name);
+        localStorage.setItem('medMembers', JSON.stringify(members));
+        activeMember = name;
+        renderTabs();
+        renderMeds();
+      }
     }
 
     function seedDefaultDataIfNeeded() {
@@ -291,113 +368,148 @@
       store.count().onsuccess = (e) => {
         if (e.target.result === 0) {
           const defaults = [
-            // Dadaji
-            { member: "Dadaji", name: "Omez", slot: "Before Breakfast", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Amaryl 1mg", slot: "Before Breakfast", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Monit GTN 6.4", slot: "10:00 AM Breakfast", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Telma - H", slot: "10:00 AM Breakfast", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Met Xl 12.5", slot: "10:00 AM Breakfast", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Solifenacin 5mg", slot: "10:00 AM Breakfast", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Amlodipine 2.5mg", slot: "4:00 PM", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Deplatt A-75", slot: "4:00 PM", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Nityam", slot: "Before Dinner", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Rivaxa 2.5", slot: "After Dinner / Bedtime", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Sildo D8", slot: "After Dinner / Bedtime", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Maxgalin 50", slot: "After Dinner / Bedtime", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Ativan 1mg", slot: "After Dinner / Bedtime", dose: "HS", stock: "" },
-            { member: "Dadaji", name: "Tonact 40", slot: "After Dinner / Bedtime", dose: "OD", stock: "" },
-            { member: "Dadaji", name: "Dolo 500", slot: "After Dinner / Bedtime", dose: "SOS", stock: "" },
+            // Grandpa Default List
+            { member: "👴 Grandpa", name: "Omez", type: "Capsule", stripSize: 15, slot: "Before Breakfast", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Amaryl 1mg", type: "Tablet", stripSize: 15, slot: "Before Breakfast", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Monit GTN 6.4", type: "Tablet", stripSize: 15, slot: "10:00 AM Breakfast", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Telma - H", type: "Tablet", stripSize: 15, slot: "10:00 AM Breakfast", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Met Xl 12.5", type: "Tablet", stripSize: 15, slot: "10:00 AM Breakfast", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Solifenacin 5mg", type: "Tablet", stripSize: 15, slot: "10:00 AM Breakfast", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Amlodipine 2.5mg", type: "Tablet", stripSize: 15, slot: "4:00 PM", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Deplatt A-75", type: "Tablet", stripSize: 15, slot: "4:00 PM", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Nityam", type: "Tablet", stripSize: 10, slot: "Before Dinner", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Rivaxa 2.5", type: "Tablet", stripSize: 15, slot: "After Dinner / Bedtime", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Sildo D8", type: "Tablet", stripSize: 15, slot: "After Dinner / Bedtime", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Maxgalin 50", type: "Capsule", stripSize: 15, slot: "After Dinner / Bedtime", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Ativan 1mg", type: "Tablet", stripSize: 15, slot: "After Dinner / Bedtime", dose: "HS", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Tonact 40", type: "Tablet", stripSize: 15, slot: "After Dinner / Bedtime", dose: "OD", stock: "", history: [] },
+            { member: "👴 Grandpa", name: "Dolo 500", type: "Tablet", stripSize: 15, slot: "After Dinner / Bedtime", dose: "SOS", stock: "", history: [] },
 
-            // Dadiji / Maa
-            { member: "Dadiji", name: "Pantocid-DSR", slot: "Before Breakfast", dose: "BD", stock: "" },
-            { member: "Dadiji", name: "Pregacip -M", slot: "Lunch", dose: "BD", stock: "" },
-            { member: "Dadiji", name: "Crampnil", slot: "Lunch", dose: "OD", stock: "" },
-            { member: "Dadiji", name: "Teptawun ER 50", slot: "Lunch", dose: "OD", stock: "" },
-            { member: "Dadiji", name: "Pyrigesic 1000", slot: "Lunch", dose: "OD", stock: "" },
-            { member: "Dadiji", name: "Amlovas 5mg", slot: "Lunch", dose: "OD", stock: "" },
-            { member: "Dadiji", name: "Refresh Eye Drop", slot: "External / Drops", dose: "1 Unit", stock: "" },
-            { member: "Dadiji", name: "Zolfresh 5mg", slot: "After Dinner / Bedtime", dose: "HS", stock: "" },
-            { member: "Dadiji", name: "Dulcolex", slot: "After Dinner / Bedtime", dose: "BD", stock: "" },
-            { member: "Dadiji", name: "Dicloran Gel", slot: "External / Drops", dose: "1 Unit", stock: "" },
-            { member: "Dadiji", name: "Soformycin", slot: "External / Drops", dose: "1 Unit", stock: "" },
-            { member: "Dadiji", name: "Betnovate", slot: "External / Drops", dose: "1 Unit", stock: "" }
+            // Grandma Default List
+            { member: "👵 Grandma", name: "Pantocid-DSR", type: "Capsule", stripSize: 10, slot: "Before Breakfast", dose: "BD", stock: "", history: [] },
+            { member: "👵 Grandma", name: "Pregacip -M", type: "Capsule", stripSize: 10, slot: "Lunch", dose: "BD", stock: "", history: [] },
+            { member: "👵 Grandma", name: "Crampnil", type: "Tablet", stripSize: 15, slot: "Lunch", dose: "OD", stock: "", history: [] },
+            { member: "👵 Grandma", name: "Teptawun ER 50", type: "Tablet", stripSize: 10, slot: "Lunch", dose: "OD", stock: "", history: [] },
+            { member: "👵 Grandma", name: "Pyrigesic 1000", type: "Tablet", stripSize: 10, slot: "Lunch", dose: "OD", stock: "", history: [] },
+            { member: "👵 Grandma", name: "Amlovas 5mg", type: "Tablet", stripSize: 15, slot: "Lunch", dose: "OD", stock: "", history: [] },
+            { member: "👵 Grandma", name: "Refresh Eye Drop", type: "Eye Drop", stripSize: 1, slot: "External Application", dose: "1 Unit", stock: "", history: [] },
+            { member: "👵 Grandma", name: "Zolfresh 5mg", type: "Tablet", stripSize: 10, slot: "After Dinner / Bedtime", dose: "HS", stock: "", history: [] },
+            { member: "👵 Grandma", name: "Dulcolex", type: "Tablet", stripSize: 10, slot: "After Dinner / Bedtime", dose: "BD", stock: "", history: [] },
+            { member: "👵 Grandma", name: "Dicloran Gel", type: "Gel", stripSize: 1, slot: "External Application", dose: "1 Unit", stock: "", history: [] },
+            { member: "👵 Grandma", name: "Soformycin", type: "Cream", stripSize: 1, slot: "External Application", dose: "1 Unit", stock: "", history: [] },
+            { member: "👵 Grandma", name: "Betnovate", type: "Cream", stripSize: 1, slot: "External Application", dose: "1 Unit", stock: "", history: [] }
           ];
           const writeTx = db.transaction("medicines", "readwrite");
           defaults.forEach(item => writeTx.objectStore("medicines").add(item));
-          writeTx.oncomplete = () => render();
+          writeTx.oncomplete = () => { renderTabs(); renderMeds(); };
         } else {
-          render();
+          renderTabs();
+          renderMeds();
         }
       };
     }
 
-    function checkOverallReminders(allMeds) {
-      let lowMeds = [];
-      allMeds.forEach(m => {
-        let dailyCount = m.dose === 'BD' ? 2 : (m.dose === 'TID' ? 3 : 1);
-        let currentStock = m.stock === "" ? 0 : parseInt(m.stock);
-        if (m.dose !== 'SOS' && m.dose !== '1 Unit') {
-          let daysLeft = Math.floor(currentStock / dailyCount);
-          if (daysLeft <= 5) {
-            lowMeds.push(`${m.name} (${m.member})`);
-          }
-        }
-      });
+    function calculateDaysAndDate(dose, stock) {
+      let dailyCount = dose === 'BD' ? 2 : (dose === 'TID' ? 3 : (dose === 'QID' ? 4 : 1));
+      let currentStock = stock === "" ? 0 : parseInt(stock);
+      if (dose === 'SOS' || dose === '1 Unit') return { daysLeft: 'N/A', finishDate: 'N/A', dailyCount };
 
-      const banner = document.getElementById('alertBanner');
-      if (lowMeds.length > 0) {
-        banner.style.display = 'block';
-        banner.innerHTML = `⚠️ <b>Refill Reminder:</b> ${lowMeds.length} medicine(s) running out in <= 5 days!`;
-      } else {
-        banner.style.display = 'none';
-      }
+      let daysLeft = Math.floor(currentStock / dailyCount);
+      let targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() + daysLeft);
+      let finishDateStr = targetDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+
+      return { daysLeft, finishDate: finishDateStr, dailyCount };
     }
 
-    function render() {
+    function renderMeds() {
       const scrollPos = window.scrollY;
       const container = document.getElementById('medList');
       container.innerHTML = '';
-      
-      const tx = db.transaction("medicines", "readonly");
-      tx.objectStore("medicines").getAll().onsuccess = (e) => {
-        const allMeds = e.target.result;
-        checkOverallReminders(allMeds);
 
-        const meds = allMeds.filter(m => m.member === currentTab);
+      db.transaction("medicines", "readonly").objectStore("medicines").getAll().onsuccess = (e) => {
+        const allMeds = e.target.result;
+        
+        let lowMedsCount = 0;
+        allMeds.forEach(m => {
+          let { daysLeft } = calculateDaysAndDate(m.dose, m.stock);
+          if (daysLeft !== 'N/A' && daysLeft <= 5) lowMedsCount++;
+        });
+        const banner = document.getElementById('alertBanner');
+        if (lowMedsCount > 0) {
+          banner.style.display = 'block';
+          banner.innerHTML = `⚠️ <b>Refill Reminder:</b> ${lowMedsCount} medicine(s) running out in <= 5 days!`;
+        } else banner.style.display = 'none';
+
+        const meds = allMeds.filter(m => m.member === activeMember);
         if (meds.length === 0) {
-          container.innerHTML = `<p style="text-align:center; color:#64748b; padding:20px;">No medicines listed for ${currentTab}.</p>`;
+          container.innerHTML = `<p style="text-align:center; color:#64748b; padding:20px;">No medicines listed for ${activeMember}.</p>`;
           return;
         }
 
         meds.forEach(m => {
-          let dailyCount = m.dose === 'BD' ? 2 : (m.dose === 'TID' ? 3 : 1);
-          let currentStock = m.stock === "" ? 0 : parseInt(m.stock);
-          let daysLeft = (m.dose === 'SOS' || m.dose === '1 Unit') ? 'N/A' : Math.floor(currentStock / dailyCount);
+          let { daysLeft, finishDate, dailyCount } = calculateDaysAndDate(m.dose, m.stock);
 
-          let alertText = daysLeft <= 5 && daysLeft !== 'N/A' 
-            ? `<span style="color:var(--danger); font-weight:bold;">⚠️ Out in ${daysLeft} Days</span>`
-            : `<span style="color:var(--success); font-weight:bold;">✅ ${daysLeft} Days Left</span>`;
+          let borderClass = "card-border-green";
+          let alertText = `<span style="color:var(--success); font-weight:bold;">✅ ${daysLeft} Days Stock</span>`;
+
+          if (daysLeft !== 'N/A') {
+            if (daysLeft <= 5) {
+              borderClass = "card-border-red";
+              alertText = `<span style="color:var(--danger); font-weight:bold;">🚨 Finish in ${daysLeft} Days (Buy Before ${finishDate})</span>`;
+            } else if (daysLeft <= 10) {
+              borderClass = "card-border-orange";
+              alertText = `<span style="color:var(--orange); font-weight:bold;">⚠️ Finish in ${daysLeft} Days (Buy Before ${finishDate})</span>`;
+            } else if (daysLeft <= 20) {
+              borderClass = "card-border-yellow";
+              alertText = `<span style="color:var(--warning); font-weight:bold;">🟡 ${daysLeft} Days Left (Until ${finishDate})</span>`;
+            }
+          }
+
+          let currentStockNum = m.stock === "" ? 0 : parseInt(m.stock);
+          let monthlyReqUnits = dailyCount * 30;
+          let netNeededUnits = Math.max(0, monthlyReqUnits - currentStockNum);
+          let recommendedStrips = Math.ceil(netNeededUnits / (m.stripSize || 10));
 
           const card = document.createElement('div');
-          card.className = 'card';
+          card.className = `card ${borderClass}`;
           card.innerHTML = `
             <div class="med-header">
               <div>
-                <div class="med-title">${m.name}</div>
-                <div style="font-size:0.8rem; color:#64748b;">⏱️ ${m.slot}</div>
+                <div class="med-title">${m.name} <span class="meta-tag">${m.type || 'Tablet'}</span></div>
+                <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">⏱️ ${m.slot}</div>
               </div>
               <span class="status-badge" style="background:#e0e7ff; color:#3730a3;">${m.dose}</span>
             </div>
+
             <div class="stock-box">
-              <div>
-                <div style="font-size:0.8rem; font-weight:bold;">Stock Count:</div>
-                ${alertText}
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-size:0.85rem; font-weight:bold;">Current Stock:</div>
+                  <div style="font-size:0.8rem; margin-top:2px;">${alertText}</div>
+                </div>
+                <input type="number" placeholder="Qty" value="${m.stock}" style="width:65px; padding:6px; text-align:center; font-weight:bold; border-radius:6px; border:1px solid #cbd5e1;" onchange="updateStockDirect(${m.id}, this.value)" />
               </div>
-              <input type="number" placeholder="Qty" value="${m.stock}" onchange="updateStock(${m.id}, this.value)" />
+
+              <!-- Quick Refill Button Row -->
+              <div class="quick-refill-row">
+                <span style="font-size:0.75rem; font-weight:bold; color:#64748b;">Quick Add:</span>
+                <button class="btn-quick" onclick="quickAddStock(${m.id}, 15)">+15</button>
+                <button class="btn-quick" onclick="quickAddStock(${m.id}, 30)">+30</button>
+                <button class="btn-quick" onclick="quickAddStock(${m.id}, 60)">+60</button>
+                <button class="btn-quick" onclick="quickAddStock(${m.id}, 90)">+90</button>
+              </div>
+              
+              <div style="margin-top:8px; font-size:0.8rem; color:#334155; border-top:1px dashed #cbd5e1; padding-top:6px; display:flex; justify-content:space-between;">
+                <span>Pack/Strip Size: <b>${m.stripSize || 10} Units</b></span>
+                <span style="color:var(--primary); font-weight:bold;">🛒 Rec: ${recommendedStrips} Strip(s)</span>
+              </div>
             </div>
+
             <div style="display:flex; gap:6px; margin-top:10px;">
-              <button class="btn btn-warning" style="flex:1;" onclick="openModal(${m.id})">✏️ Edit</button>
-              <button class="btn btn-danger" onclick="deleteMed(${m.id})">🗑️ Delete</button>
+              <button class="btn btn-warning" style="flex:1;" onclick="openMedModal(${m.id})">✏️ Edit</button>
+              <button class="btn btn-primary" style="flex:1;" onclick="openHistoryModal(${m.id})">📜 Refill Log</button>
+              <button class="btn btn-danger" onclick="deleteMed(${m.id})">🗑️</button>
             </div>
           `;
           container.appendChild(card);
@@ -407,37 +519,64 @@
       };
     }
 
-    function updateStock(id, newStock) {
+    function quickAddStock(id, addQty) {
       const tx = db.transaction("medicines", "readwrite");
       const store = tx.objectStore("medicines");
       store.get(id).onsuccess = (e) => {
         const data = e.target.result;
-        data.stock = newStock === "" ? "" : parseInt(newStock);
+        let current = data.stock === "" ? 0 : parseInt(data.stock);
+        data.stock = current + addQty;
+
+        if (!data.history) data.history = [];
+        data.history.push({
+          date: new Date().toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }),
+          qty: addQty
+        });
+
         store.put(data);
-        tx.oncomplete = () => render();
+        tx.oncomplete = () => renderMeds();
       };
     }
 
-    function openModal(id = null) {
+    function updateStockDirect(id, val) {
+      const tx = db.transaction("medicines", "readwrite");
+      const store = tx.objectStore("medicines");
+      store.get(id).onsuccess = (e) => {
+        const data = e.target.result;
+        data.stock = val === "" ? "" : parseInt(val);
+        store.put(data);
+        tx.oncomplete = () => renderMeds();
+      };
+    }
+
+    function openMedModal(id = null) {
+      const selectMem = document.getElementById('mMember');
+      selectMem.innerHTML = '';
+      members.forEach(m => { selectMem.innerHTML += `<option value="${m}">${m}</option>`; });
+
       document.getElementById('editId').value = id || '';
       if (id) {
         db.transaction("medicines", "readonly").objectStore("medicines").get(id).onsuccess = (e) => {
           const m = e.target.result;
           document.getElementById('mMember').value = m.member;
           document.getElementById('mName').value = m.name;
+          document.getElementById('mType').value = m.type || 'Tablet';
+          document.getElementById('mStripSize').value = m.stripSize || 15;
           document.getElementById('mSlot').value = m.slot;
           document.getElementById('mDose').value = m.dose;
           document.getElementById('mStock').value = m.stock;
         };
       } else {
-        document.getElementById('mMember').value = currentTab;
+        document.getElementById('mMember').value = activeMember;
         document.getElementById('mName').value = '';
+        document.getElementById('mType').value = 'Tablet';
+        document.getElementById('mStripSize').value = 15;
         document.getElementById('mStock').value = '';
       }
       document.getElementById('medModal').style.display = 'flex';
     }
 
-    function closeModal() { document.getElementById('medModal').style.display = 'none'; }
+    function closeMedModal() { document.getElementById('medModal').style.display = 'none'; }
 
     function saveMed() {
       const id = document.getElementById('editId').value;
@@ -445,48 +584,100 @@
       const data = {
         member: document.getElementById('mMember').value,
         name: document.getElementById('mName').value,
+        type: document.getElementById('mType').value,
+        stripSize: parseInt(document.getElementById('mStripSize').value) || 10,
         slot: document.getElementById('mSlot').value,
         dose: document.getElementById('mDose').value,
-        stock: rawStock === "" ? "" : parseInt(rawStock)
+        stock: rawStock === "" ? "" : parseInt(rawStock),
+        history: []
       };
-      if (!data.name) return alert('Medicine name required!');
+
+      if (!data.name) return alert('Medicine Name Required!');
 
       const tx = db.transaction("medicines", "readwrite");
       const store = tx.objectStore("medicines");
-      if (id) { data.id = parseInt(id); store.put(data); }
-      else { store.add(data); }
 
-      tx.oncomplete = () => { closeModal(); render(); };
+      if (id) {
+        store.get(parseInt(id)).onsuccess = (e) => {
+          const existing = e.target.result;
+          data.id = parseInt(id);
+          data.history = existing.history || [];
+          store.put(data);
+        };
+      } else {
+        store.add(data);
+      }
+
+      tx.oncomplete = () => { closeMedModal(); renderMeds(); };
     }
 
     function deleteMed(id) {
-      if (confirm('Delete this medicine?')) {
+      if (confirm('Delete this medicine entry?')) {
         const tx = db.transaction("medicines", "readwrite");
         tx.objectStore("medicines").delete(id);
-        tx.oncomplete = () => render();
+        tx.oncomplete = () => renderMeds();
       }
     }
 
-    function exportData() {
-      db.transaction("medicines", "readonly").objectStore("medicines").getAll().onsuccess = (e) => {
-        const blob = new Blob([JSON.stringify(e.target.result, null, 2)], {type : 'application/json'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `MedTracker_Backup_${new Date().toISOString().slice(0,10)}.json`;
-        a.click();
+    function openHistoryModal(id) {
+      document.getElementById('histMedId').value = id;
+      db.transaction("medicines", "readonly").objectStore("medicines").get(id).onsuccess = (e) => {
+        const m = e.target.result;
+        document.getElementById('histMedTitle').innerText = `${m.name} (${m.member})`;
+        const logContainer = document.getElementById('historyLogs');
+        logContainer.innerHTML = '';
+        
+        let logs = m.history || [];
+        if (logs.length === 0) logContainer.innerHTML = `<p style="font-size:0.8rem; color:#94a3b8;">No refill logs yet.</p>`;
+        else {
+          logs.slice().reverse().forEach(l => {
+            logContainer.innerHTML += `<div class="history-item"><span>📅 ${l.date}</span><b>+${l.qty} Units</b></div>`;
+          });
+        }
+      };
+      document.getElementById('historyModal').style.display = 'flex';
+    }
+
+    function closeHistoryModal() { document.getElementById('historyModal').style.display = 'none'; }
+
+    function addPurchaseRecord() {
+      const id = parseInt(document.getElementById('histMedId').value);
+      const qty = parseInt(document.getElementById('newPurchasedQty').value);
+      if (!qty || qty <= 0) return alert('Enter valid quantity!');
+
+      const tx = db.transaction("medicines", "readwrite");
+      const store = tx.objectStore("medicines");
+      store.get(id).onsuccess = (e) => {
+        const data = e.target.result;
+        let current = data.stock === "" ? 0 : parseInt(data.stock);
+        data.stock = current + qty;
+
+        if (!data.history) data.history = [];
+        data.history.push({
+          date: new Date().toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }),
+          qty: qty
+        });
+
+        store.put(data);
+        tx.oncomplete = () => {
+          document.getElementById('newPurchasedQty').value = '';
+          openHistoryModal(id);
+          renderMeds();
+        };
       };
     }
 
     function openOrderModal() {
-      document.getElementById('orderSelectMember').value = currentTab;
+      const selectMem = document.getElementById('orderSelectMember');
+      selectMem.innerHTML = `<option value="All">🌐 All Members Combined</option>`;
+      members.forEach(m => { selectMem.innerHTML += `<option value="${m}">${m}</option>`; });
+      
       document.getElementById('pdfDate').innerText = "Order Date: " + new Date().toLocaleDateString();
       renderPdfPreview();
       document.getElementById('orderModal').style.display = 'flex';
     }
 
-    function closeOrderModal() {
-      document.getElementById('orderModal').style.display = 'none';
-    }
+    function closeOrderModal() { document.getElementById('orderModal').style.display = 'none'; }
 
     function renderPdfPreview() {
       const sel = document.getElementById('orderSelectMember').value;
@@ -498,38 +689,82 @@
         let filtered = sel === "All" ? all : all.filter(m => m.member === sel);
 
         if (filtered.length === 0) {
-          content.innerHTML = `<p style="text-align:center; padding:10px; font-size:0.85rem;">No medicines found for ${sel}.</p>`;
+          content.innerHTML = `<p style="text-align:center; padding:10px;">No medicines found for ${sel}.</p>`;
           return;
         }
 
-        let html = `
-          <h4 style="margin:10px 0 4px 0;">Patient: ${sel === 'All' ? 'All Family Members' : sel}</h4>
-          <table class="pdf-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Medicine Name</th>
-                <th>Dose</th>
-                <th>Order Qty</th>
-              </tr>
-            </thead>
-            <tbody>
-        `;
+        let html = `<table class="pdf-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Patient</th>
+              <th>Medicine Name</th>
+              <th>Type</th>
+              <th>Order Qty / Strips</th>
+            </tr>
+          </thead>
+          <tbody>`;
 
         filtered.forEach((m, i) => {
-          let reqQty = (m.stock !== "" && parseInt(m.stock) > 0) ? m.stock : 30;
+          let { dailyCount } = calculateDaysAndDate(m.dose, m.stock);
+          let currentStockNum = m.stock === "" ? 0 : parseInt(m.stock);
+          let monthlyReqUnits = dailyCount * 30;
+          let netNeededUnits = Math.max(0, monthlyReqUnits - currentStockNum);
+          let recommendedStrips = Math.ceil(netNeededUnits / (m.stripSize || 10));
+          if (recommendedStrips === 0) recommendedStrips = 1;
+
           html += `
             <tr>
               <td>${i+1}</td>
-              <td><b>${m.name}</b><br><small>${m.slot}</small></td>
-              <td>${m.dose}</td>
-              <td><b>${reqQty}</b></td>
+              <td><b>${m.member}</b></td>
+              <td><b>${m.name}</b><br><small>${m.slot} (${m.dose})</small></td>
+              <td>${m.type || 'Tablet'}</td>
+              <td><b>${recommendedStrips} Strip(s)</b><br><small>(${recommendedStrips * (m.stripSize || 10)} ${m.type}s)</small></td>
             </tr>
           `;
         });
 
         html += `</tbody></table>`;
         content.innerHTML = html;
+      };
+    }
+
+    function copyOrderText() {
+      const sel = document.getElementById('orderSelectMember').value;
+      db.transaction("medicines", "readonly").objectStore("medicines").getAll().onsuccess = (e) => {
+        const all = e.target.result;
+        let filtered = sel === "All" ? all : all.filter(m => m.member === sel);
+
+        let txt = `📦 MEDICINE REFILL ORDER
+Date: ${new Date().toLocaleDateString()}
+-----------------------------------
+
+`;
+        filtered.forEach((m, i) => {
+          let { dailyCount } = calculateDaysAndDate(m.dose, m.stock);
+          let currentStockNum = m.stock === "" ? 0 : parseInt(m.stock);
+          let netNeededUnits = Math.max(0, (dailyCount * 30) - currentStockNum);
+          let recommendedStrips = Math.ceil(netNeededUnits / (m.stripSize || 10)) || 1;
+
+          txt += `${i+1}. [${m.member}] ${m.name} (${m.type}) - ${recommendedStrips} Strip(s)
+`;
+        });
+
+        txt += `
+-----------------------------------
+Please dispatch the above list. Thank you!`;
+        navigator.clipboard.writeText(txt);
+        alert('Order Sheet copied to clipboard! You can paste it directly in WhatsApp.');
+      };
+    }
+
+    function exportData() {
+      db.transaction("medicines", "readonly").objectStore("medicines").getAll().onsuccess = (e) => {
+        const blob = new Blob([JSON.stringify(e.target.result, null, 2)], {type : 'application/json'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `MedTracker_Backup_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
       };
     }
   </script>
