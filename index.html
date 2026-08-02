@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>MedTracker Pro</title>
   
-  <!-- iOS / iPhone Native App Support -->
   <link rel="manifest" href="manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -99,7 +98,8 @@
       background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;
     }
     .modal-content {
-      background: white; padding: 20px; border-radius: 16px; width: 90%; max-width: 400px;
+      background: white; padding: 20px; border-radius: 16px; width: 90%; max-width: 450px;
+      max-height: 85vh; overflow-y: auto;
     }
     .form-group { margin-bottom: 10px; }
     .form-group label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 4px; }
@@ -112,16 +112,42 @@
       box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
     }
     .bottom-bar button { flex: 1; }
+
+    /* PDF Printable Sheet Style */
+    .pdf-preview {
+      background: #fff;
+      padding: 15px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    .pdf-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.85rem;
+    }
+    .pdf-table th, .pdf-table td {
+      border: 1px solid #cbd5e1;
+      padding: 6px;
+      text-align: left;
+    }
+    .pdf-table th { background: #f1f5f9; }
+
+    @media print {
+      body * { visibility: hidden; }
+      #printableArea, #printableArea * { visibility: visible; }
+      #printableArea { position: absolute; left: 0; top: 0; width: 100%; }
+    }
   </style>
 </head>
 <body>
 
   <div class="header">
-    <h2 style="margin:0;">💊 Family MedTracker</h2>
+    <h2 style="margin:0;">💊 Family MedTracker Pro</h2>
     <span id="netStatus" class="status-badge status-online">Online</span>
   </div>
 
-  <!-- Auto Low Stock Reminder Banner -->
   <div id="alertBanner" class="alert-banner"></div>
 
   <div class="tabs">
@@ -136,10 +162,10 @@
 
   <div class="bottom-bar">
     <button class="btn btn-primary" onclick="exportData()">💾 Backup</button>
-    <button class="btn btn-warning" onclick="generateOrder()">📄 Chemist Order</button>
+    <button class="btn btn-warning" onclick="openOrderModal()">📄 Chemist PDF Order</button>
   </div>
 
-  <!-- Add/Edit Modal -->
+  <!-- Add/Edit Medicine Modal -->
   <div id="medModal" class="modal">
     <div class="modal-content">
       <h3 id="modalTitle">Add Medicine</h3>
@@ -186,6 +212,37 @@
       <div style="display:flex; gap:8px; margin-top:15px;">
         <button class="btn btn-primary" style="flex:1;" onclick="saveMed()">Save</button>
         <button class="btn btn-danger" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chemist PDF Order Modal -->
+  <div id="orderModal" class="modal">
+    <div class="modal-content">
+      <h3>📋 Generate Chemist Order</h3>
+      
+      <div class="form-group">
+        <label>Select Person for Order Sheet:</label>
+        <select id="orderSelectMember" onchange="renderPdfPreview()">
+          <option value="Dadaji">👴 Dadaji Only</option>
+          <option value="Dadiji">👵 Dadiji / Maa Only</option>
+          <option value="Others">👨‍👩‍👧‍👦 Others Only</option>
+          <option value="All">🌐 Combined (All Family Members)</option>
+        </select>
+      </div>
+
+      <!-- PDF Printable Preview Area -->
+      <div id="printableArea" class="pdf-preview">
+        <div style="text-align:center; border-bottom:1px solid #ccc; padding-bottom:6px;">
+          <h3 style="margin:0; color:#2563eb;">MEDICINE REFILL ORDER</h3>
+          <p style="margin:2px 0; font-size:0.75rem; color:#64748b;" id="pdfDate"></p>
+        </div>
+        <div id="pdfContent"></div>
+      </div>
+
+      <div style="display:flex; gap:8px; margin-top:15px;">
+        <button class="btn btn-primary" style="flex:1;" onclick="window.print()">🖨️ Download PDF / Print</button>
+        <button class="btn btn-danger" onclick="closeOrderModal()">Close</button>
       </div>
     </div>
   </div>
@@ -415,22 +472,59 @@
       };
     }
 
-    function generateOrder() {
+    function openOrderModal() {
+      document.getElementById('orderSelectMember').value = currentTab;
+      document.getElementById('pdfDate').innerText = "Order Date: " + new Date().toLocaleDateString();
+      renderPdfPreview();
+      document.getElementById('orderModal').style.display = 'flex';
+    }
+
+    function closeOrderModal() {
+      document.getElementById('orderModal').style.display = 'none';
+    }
+
+    function renderPdfPreview() {
+      const sel = document.getElementById('orderSelectMember').value;
+      const content = document.getElementById('pdfContent');
+      content.innerHTML = '';
+
       db.transaction("medicines", "readonly").objectStore("medicines").getAll().onsuccess = (e) => {
-        let text = `📦 CHEMIST MEDICINE ORDER\nDate: ${new Date().toLocaleDateString()}\n--------------------\n\n`;
-        ["Dadaji", "Dadiji", "Others"].forEach(mem => {
-          const memMeds = e.target.result.filter(m => m.member === mem);
-          if (memMeds.length > 0) {
-            text += `👤 ${mem.toUpperCase()} MEDICINES:\n`;
-            memMeds.forEach((m, i) => {
-              text += `${i+1}. ${m.name} [Dose: ${m.dose}] - Req Qty: ${m.stock > 0 ? m.stock : 30}\n`;
-            });
-            text += `\n`;
-          }
+        const all = e.target.result;
+        let filtered = sel === "All" ? all : all.filter(m => m.member === sel);
+
+        if (filtered.length === 0) {
+          content.innerHTML = `<p style="text-align:center; padding:10px; font-size:0.85rem;">No medicines found for ${sel}.</p>`;
+          return;
+        }
+
+        let html = `
+          <h4 style="margin:10px 0 4px 0;">Patient: ${sel === 'All' ? 'All Family Members' : sel}</h4>
+          <table class="pdf-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Medicine Name</th>
+                <th>Dose</th>
+                <th>Order Qty</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        filtered.forEach((m, i) => {
+          let reqQty = m.stock > 0 ? m.stock : 30;
+          html += `
+            <tr>
+              <td>${i+1}</td>
+              <td><b>${m.name}</b><br><small>${m.slot}</small></td>
+              <td>${m.dose}</td>
+              <td><b>${reqQty}</b></td>
+            </tr>
+          `;
         });
-        text += `--------------------\nPlease dispatch the above list. Thank you!`;
-        navigator.clipboard.writeText(text);
-        alert('Chemist Order List copied to clipboard! You can paste it directly on WhatsApp.');
+
+        html += `</tbody></table>`;
+        content.innerHTML = html;
       };
     }
   </script>
